@@ -14,37 +14,49 @@ static void GUI_DestructorButton(void* element) {
 
 static void GUI_DestructorLabel(void* element) {
     gui_label_t* label = (gui_label_t*)element;
-
+    free(label->_text);
+    free(label);
+    return;
 }
 
 static void GUI_DestructorGraph(void* element) {
-
+    gui_graph_t* graph = (gui_graph_t*)element;
+    // !!! FILL WITH DESTRUCTOR CODE FOR WAVEFORMS !!! //
+    free(graph);
+    return;
 }
 
 static void GUI_DestructorWindow(void* element) {
-
+    gui_window_t* window = (gui_window_t*)element;
+    free(window);
+    return;
 }
 
 gui_object_t* GUI_AddElement(gui_object_t* parent, gui_type_t type) {
 
     size_t szObject;
-    void (* destructor)(void*);
+    void (* callbackDestructor)(void*);
 
     switch (type)
     {
     case GUI_WINDOW:
         szObject = sizeof(gui_window_t);
+        callbackDestructor = &GUI_DestructorWindow;
         break;
     case GUI_BUTTON:
         szObject = sizeof(gui_button_t);
+        callbackDestructor = &GUI_DestructorButton;
         break;
     case GUI_LABEL:
         szObject = sizeof(gui_label_t);
+        callbackDestructor = &GUI_DestructorLabel;
         break;
     case GUI_GRAPH:
         szObject = sizeof(gui_graph_t);
+        callbackDestructor = &GUI_DestructorGraph;
         break;
     default:
+        //invalid type
         return NULL;
     }
 
@@ -56,6 +68,7 @@ gui_object_t* GUI_AddElement(gui_object_t* parent, gui_type_t type) {
     container->_elem = element;
     container->_type = type;
     container->_parent = parent;
+    container->_destructor = callbackDestructor;
     container->visible = false;
 
     //allocate and add the element as a child of the parent
