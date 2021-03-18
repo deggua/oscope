@@ -1,0 +1,1 @@
+#define GUI_MAX_WAVEFORMS 2UL
