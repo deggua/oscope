@@ -5,6 +5,8 @@
 
 #include "scope_gui.h"
 
+/* --- GUI Element Destructors --- */
+
 static void GUI_DestructorButton(void* element) {
     gui_button_t* button = (gui_button_t*)element;
     free(button->_text);
@@ -32,8 +34,13 @@ static void GUI_DestructorWindow(void* element) {
     return;
 }
 
+
+
+/* --- GUI Object Management Functions --- */
+
 // Allocates and creates the object and element for a specified type of GUI element
-gui_object_t* GUI_CreateObject(gui_element_t type) {
+// Returns the object container
+static gui_object_t* GUI_CreateObject(gui_element_t type) {
     size_t szObject;
     void (* callbackDestructor)(void*);
 
@@ -158,3 +165,123 @@ gui_ret_t GUI_DestroyObject(gui_object_t* obj) {
     free(obj);
     return GUI_RET_SUCCESS;
 }
+
+
+
+/* --- Utility Functions --- */
+// Validates a GUI element's position
+// Returns true if (posx,posy) are within the bounds set in the #defines
+static bool GUI_ValidateElementPosition(
+    const int32_t posx, const int32_t posy) {
+    if (posx < GUI_POSX_MIN || posx > GUI_POSX_MAX ||
+        posy < GUI_POSY_MIN || posy > GUI_POSY_MAX) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
+
+/* --- Button Element Constructors and Accessors --- */
+
+// Validates a button's position
+// Returns true if (width,height) are within the bounds set in the #defines
+static bool GUI_ValidateButtonDimensions(
+    const int32_t width, const int32_t height) {
+    if (width < GUI_BUTTON_WIDTH_MIN || width > GUI_BUTTON_WIDTH_MAX ||
+        height < GUI_BUTTON_HEIGHT_MIN || height > GUI_BUTTON_HEIGHT_MAX) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+// Creates and initializes a button object and element
+// Returns the object container
+gui_object_t* GUI_CreateButton(
+    const int32_t posx, const int32_t posy, 
+    const int32_t width, const int32_t height, 
+    const char* text) {
+        
+    if (!GUI_ValidateElementPosition(posx, posy) || !GUI_ValidateButtonDimensions(width, height)) {
+        return GUI_RET_FAILURE_INVALID;
+    }
+
+    gui_object_t* objButton = GUI_CreateObject(GUI_ELEMENT_BUTTON);
+    if (objButton == NULL) {
+        return GUI_RET_FAILURE_NULLPTR;
+    }
+
+    gui_button_t* elemButton = (gui_button_t*)(objButton->_elem);
+
+    elemButton->dim.height = height;
+    elemButton->dim.width = width;
+    elemButton->pos.x = posx;
+    elemButton->pos.y = posy;
+
+    if (text != NULL) {
+        char* strButtonText = malloc(strlen(text) + 1);
+        if (strButtonText == NULL) {
+            //malloc for the text string failed, button cannot be created as requested
+            GUI_DestroyObject(objButton);
+            return NULL;
+        }
+
+        strcpy(strButtonText, text);
+    }
+
+    return objButton;
+}
+
+// Validates and sets the position of a button
+gui_ret_t GUI_SetButtonPosition(gui_object_t* button, const int32_t posx, const int32_t posy) {
+    if (!GUI_ValidateElementPosition(posx, posy)) {
+        return GUI_RET_FAILURE_INVALID;
+    }
+
+    gui_button_t* elemButton = (gui_button_t*)(button->_elem);
+    elemButton->pos.x = posx;
+    elemButton->pos.y = posy;
+
+    return GUI_RET_SUCCESS;
+}
+
+// Validates and sets the dimensions of a button
+gui_ret_t GUI_SetButtonDimensions(gui_object_t* button, const int32_t width, const int32_t height) {
+    if (!GUI_ValidateButtonDimensions(width, height)) {
+        return GUI_RET_FAILURE_INVALID;
+    }
+
+    gui_button_t* elemButton = (gui_button_t*)(button->_elem);
+    elemButton->dim.width = width;
+    elemButton->dim.height = height;
+
+    return GUI_RET_SUCCESS;
+}
+
+// Changes the text displayed on a button
+gui_ret_t GUI_SetButtonText(gui_object_t* button, const char* text) {
+
+    gui_button_t* elemButton = (gui_button_t*)(button->_elem);
+
+    if (text == NULL) {
+        free(elemButton->_text);
+        elemButton->_text = NULL;
+    } else {
+        char* strNewText = malloc(strlen(text));
+        if (strNewText == NULL) {
+            return GUI_RET_FAILURE_NOMEM;
+        }
+
+        strcpy(strNewText, text);
+        free (elemButton->_text);
+        elemButton->_text = strNewText;
+    }
+
+    return GUI_RET_SUCCESS;
+}
+
+
+
+/* --- Label Element Constructors and Accessors --- */

@@ -5,6 +5,16 @@
 
 #define GUI_CHILDREN_INIT_ALLOC 1UL
 
+#define GUI_POSX_MIN 0
+#define GUI_POSX_MAX 1024
+#define GUI_POSY_MIN 0
+#define GUI_POSY_MAX 1024
+
+#define GUI_BUTTON_WIDTH_MIN 1
+#define GUI_BUTTON_WIDTH_MAX 128
+#define GUI_BUTTON_HEIGHT_MIN 1
+#define GUI_BUTTON_HEIGHT_MAX 128
+
 /* GUI element types */
 typedef enum {
     GUI_ELEMENT_BUTTON, 
@@ -17,6 +27,7 @@ typedef enum {
     GUI_RET_SUCCESS,            //the operation succeeded
     GUI_RET_FAILURE_NOMEM,      //the operation failed, out of memory
     GUI_RET_FAILURE_INVALID,    //the operation failed, invalid parameters
+    GUI_RET_FAILURE_NULLPTR,    //the operation failed, nullptr used
     GUI_RET_ERROR               //the operation encountered an unexpected error
 } gui_ret_t;
 
