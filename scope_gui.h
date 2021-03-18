@@ -7,8 +7,18 @@
 
 /* GUI element types */
 typedef enum {
-    GUI_BUTTON, GUI_WINDOW, GUI_LABEL, GUI_GRAPH
-} gui_type_t;
+    GUI_ELEMENT_BUTTON, 
+    GUI_ELEMENT_WINDOW, 
+    GUI_ELEMENT_LABEL, 
+    GUI_ELEMENT_GRAPH
+} gui_element_t;
+
+typedef enum {
+    GUI_RET_SUCCESS,            //the operation succeeded
+    GUI_RET_FAILURE_NOMEM,      //the operation failed, out of memory
+    GUI_RET_FAILURE_INVALID,    //the operation failed, invalid parameters
+    GUI_RET_ERROR               //the operation encountered an unexpected error
+} gui_ret_t;
 
 /* GUI element structs */
 typedef struct {

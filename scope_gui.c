@@ -32,26 +32,26 @@ static void GUI_DestructorWindow(void* element) {
     return;
 }
 
-gui_object_t* GUI_AddElement(gui_object_t* parent, gui_type_t type) {
-
+// Allocates and creates the object and element for a specified type of GUI element
+gui_object_t* GUI_CreateObject(gui_element_t type) {
     size_t szObject;
     void (* callbackDestructor)(void*);
 
     switch (type)
     {
-    case GUI_WINDOW:
+    case GUI_ELEMENT_WINDOW:
         szObject = sizeof(gui_window_t);
         callbackDestructor = &GUI_DestructorWindow;
         break;
-    case GUI_BUTTON:
+    case GUI_ELEMENT_BUTTON:
         szObject = sizeof(gui_button_t);
         callbackDestructor = &GUI_DestructorButton;
         break;
-    case GUI_LABEL:
+    case GUI_ELEMENT_LABEL:
         szObject = sizeof(gui_label_t);
         callbackDestructor = &GUI_DestructorLabel;
         break;
-    case GUI_GRAPH:
+    case GUI_ELEMENT_GRAPH:
         szObject = sizeof(gui_graph_t);
         callbackDestructor = &GUI_DestructorGraph;
         break;
@@ -60,39 +60,33 @@ gui_object_t* GUI_AddElement(gui_object_t* parent, gui_type_t type) {
         return NULL;
     }
 
-    //allocate and initialize the container and its element for the new element
-    gui_object_t* container  = calloc(1, sizeof(gui_object_t));
-    void* element            = calloc(1, szObject);
-    if (container == NULL || element == NULL) { return NULL; }
+    //allocate and initialize the object container and its element
+    gui_object_t* object  = calloc(1, sizeof(gui_object_t));
+    void* element         = calloc(1, szObject);
+    if (object == NULL || element == NULL) { return NULL; }
 
-    container->_elem = element;
-    container->_type = type;
-    container->_parent = parent;
-    container->_destructor = callbackDestructor;
-    container->visible = false;
+    object->_elem = element;
+    object->_type = type;
+    object->_destructor = callbackDestructor;
+    object->visible = false;
 
-    //allocate and add the element as a child of the parent
+    return object;
+}
+
+// Adds an existing GUI object to a parent object
+gui_ret_t GUI_AddObject(gui_object_t* obj, gui_object_t* parent) {
+
+    //allocate or extend the buffer for children if necessary
     if (parent->_children == NULL) {
         gui_object_t** bufChildren = calloc(GUI_CHILDREN_INIT_ALLOC, sizeof(gui_object_t*));
-        if (bufChildren == NULL) { 
-            //free the element since we couldn't allocate space for it as a child
-            free(container);
-            free(element);
-            return NULL; 
-        }
+        if (bufChildren == NULL) { return NULL; }
 
-        memset(&bufChildren[0], 0x00, GUI_CHILDREN_INIT_ALLOC * sizeof(gui_object_t*));
-        container->_num_children_max = GUI_CHILDREN_INIT_ALLOC;
-        container->_children = bufChildren;
+        parent->_num_children_max = GUI_CHILDREN_INIT_ALLOC;
+        parent->_children = bufChildren;
 
     } else if (parent->_num_children_cur == parent->_num_children_max) {
         gui_object_t** bufChildren = realloc(parent->_children, 2 * parent->_num_children_max);
-        if (bufChildren == NULL) { 
-            //free the element since we couldn't allocate space for it as a child
-            free(container);
-            free(element);
-            return NULL; 
-        }
+        if (bufChildren == NULL) { return NULL; }
 
         memset(
             &bufChildren[parent->_num_children_max], 
@@ -100,44 +94,61 @@ gui_object_t* GUI_AddElement(gui_object_t* parent, gui_type_t type) {
             parent->_num_children_max * sizeof(gui_object_t*)
         );
 
-        container->_num_children_max = 2 * container->_num_children_max;
-        container->_children = bufChildren;
+        parent->_num_children_max = 2 * parent->_num_children_max;
+        parent->_children = bufChildren;
     }
 
     //find the first open child slot
-    for (int32_t ii = 0; ii < container->_num_children_max; ii++) {
+    for (int32_t ii = 0; ii < parent->_num_children_max; ii++) {
         if (parent->_children[ii] != NULL) {
-            parent->_children[ii] = container;
-            return container;
+            parent->_children[ii] = obj;
+            obj->_parent = parent;
+            return GUI_RET_SUCCESS;
         }
     }
     
-    //failed to find a slot for some reason, this shouldn't be possible, but we can handle it anyway
-    free(container);
-    free(element);
-    return NULL;
+    return GUI_RET_ERROR;
 }
 
-void GUI_DeleteElement(gui_object_t* obj) {
-    //don't need to do anything if it's already deleted
+// Removes an exisitng GUI object from its parent object
+gui_ret_t GUI_RemoveObject(gui_object_t* obj) {
+    //if the object was null the operation is invalid
     if (obj == NULL) {
-        return;
+        return GUI_RET_FAILURE_INVALID;
+    }
+
+    //parent could be null, in which case we don't do anything
+    gui_object_t* parent = obj->_parent;
+    if (parent == NULL) {
+        return GUI_RET_SUCCESS;
     }
 
     //detach from parent
-    gui_object_t* parent = obj->_parent;
     for (int32_t ii = 0; ii < parent->_num_children_max; ii++) {
         if (parent->_children[ii] == obj) {
-            parent->_children[ii] == NULL;
+            parent->_children[ii] = NULL;
             parent->_num_children_cur--;
-            break;
+            obj->_parent = NULL;
+            return GUI_RET_SUCCESS;
         }
     }
 
-    //delete children
+    //if it gets here, it means the child pointed to the parent, but the parent didn't have the child listed
+    //which means the GUI was constructed improperly and that bad things probably happened
+    return GUI_RET_ERROR;
+}
+
+// Destroys an exisitng GUI object and all its children
+gui_ret_t GUI_DestroyObject(gui_object_t* obj) {
+    //don't need to do anything if it doesn't exist
+    if (obj == NULL) {
+        return GUI_RET_SUCCESS;
+    }
+
+    //destroy children
     for (int32_t ii = 0; ii < obj->_num_children_max; ii++) {
         if (obj->_children[ii] != NULL) {
-            GUI_DeleteElement(obj->_children[ii]);
+            GUI_DestroyObject(obj->_children[ii]);
         }
     }
 
@@ -145,5 +156,5 @@ void GUI_DeleteElement(gui_object_t* obj) {
     obj->_destructor(obj->_elem);
     free(obj->_children);
     free(obj);
-    return;
+    return GUI_RET_SUCCESS;
 }
