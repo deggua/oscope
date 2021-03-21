@@ -1,14 +1,17 @@
+#ifndef GUI_LABEL_H
+#define GUI_LABEL_H
+
 #include <stdint.h>
 
 #include "utils/geometry.h"
+#include "gui/gui_base.h"
 
 typedef struct {
+    // derived from
+    gui_object_t _base;
+
     // member variables
     char* _text;
-
-    // member functions
-    void (* _Destructor)(gui_label_t*);
-
-    gui_ret_t (* SetPosition)(gui_label_t*, const int32_t, const int32_t);
-    gui_ret_t (* SetText)(gui_label_t*, const char*);
 } gui_label_t;
+
+#endif

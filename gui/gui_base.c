@@ -3,12 +3,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "gui/gui_base.h"
-
 #include "utils/class.h"
 #include "gui/gui.h"
 #include "utils/geometry.h"
 
+#include "gui/gui_base.h"
+
+/* --- Private Functions --- */
 static void Destructor(gui_object_t* this) {
     //destroy children
     for (int32_t ii = 0; ii < this->_num_children_max; ii++) {
@@ -25,11 +26,19 @@ static void Destructor(gui_object_t* this) {
     return GUI_RET_SUCCESS;
 }
 
+static void Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+    //abstract method, needs to be implemented by the derived class
+    return;
+}
+
+/* --- Public Functions --- */
 void (* GUI_Object_GetDestructor(void))(gui_object_t*) {
     return &Destructor;
 }
 
-void GUI_Object_New(gui_object_t* this, int32_t posx, int32_t posy, bool visible) {
+gui_ret_t GUI_Object_New(gui_object_t* this, int32_t posx, int32_t posy, bool visible) {
+    gui_ret_t ret;
+
     //call superclass constructor
     Class_New((class_t*)this);
 
@@ -39,12 +48,22 @@ void GUI_Object_New(gui_object_t* this, int32_t posx, int32_t posy, bool visible
     this->_num_children_max = 0;
     this->_num_children_cur = 0;
 
-    GUI_Object_SetVisiblity(this, visible);
-    GUI_Object_SetPosition(this, posx, posy);
+    ret = GUI_Object_SetVisiblity(this, visible);
+    if (ret != GUI_RET_SUCCESS) {
+        return ret;
+    }
+
+    ret = GUI_Object_SetPosition(this, posx, posy);
+    if (ret != GUI_RET_SUCCESS) {
+        return ret;
+    }
+
+    //setup member functions
+    this->_Render = &Render;
 
     //replace destructor
     this->_base._Destructor = &Destructor;
-    return;
+    return GUI_RET_SUCCESS;
 }
 
 // Adds an existing GUI object to a parent object
@@ -53,14 +72,18 @@ gui_ret_t GUI_Object_Add(gui_object_t* this, gui_object_t* parent) {
     //allocate or extend the buffer for children if necessary
     if (parent->_children == NULL) {
         gui_object_t** bufChildren = calloc(GUI_CHILDREN_INIT_ALLOC, sizeof(gui_object_t*));
-        if (bufChildren == NULL) { return NULL; }
+        if (bufChildren == NULL) {
+             return GUI_RET_FAILURE_NOMEM; 
+        }
 
         parent->_num_children_max = GUI_CHILDREN_INIT_ALLOC;
         parent->_children = bufChildren;
 
     } else if (parent->_num_children_cur == parent->_num_children_max) {
         gui_object_t** bufChildren = realloc(parent->_children, 2 * parent->_num_children_max);
-        if (bufChildren == NULL) { return NULL; }
+        if (bufChildren == NULL) {
+            return GUI_RET_FAILURE_NOMEM;
+        }
 
         memset(
             &bufChildren[parent->_num_children_max], 
@@ -131,4 +154,19 @@ gui_ret_t GUI_Object_SetVisiblity(gui_object_t* this, bool visible) {
 
 bool GUI_Object_GetVisibility(gui_object_t* this) {
     return this->_visible;
+}
+
+void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+    this->_Render(this, theme, scr, origin);
+
+    for (int32_t ii = 0; ii < this->_num_children_max; ii++) {
+        if (this->_children[ii] != NULL) {
+            gui_object_t* child = this->_children[ii];
+            origin.x += this->_pos.x;
+            origin.y += this->_pos.y;
+            GUI_Object_Render(child, theme, scr, origin);
+        }
+    }
+
+    return;
 }

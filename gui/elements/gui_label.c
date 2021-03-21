@@ -6,76 +6,65 @@
 #include "gui/gui_base.h"
 #include "gui/elements/gui_label.h"
 
-/* -- Public Functions --- */
-gui_object_t* GUI_CreateLabel(const int32_t posx, const int32_t posy, const char* text) {
-    if (!GUI_ValidateElementPosition(posx, posy)) {
-        return GUI_RET_FAILURE_INVALID;
-    }
-
-    gui_object_t* objLabel = GUI_CreateObject();
-    if (objLabel == NULL) {
-        return GUI_RET_FAILURE_NOMEM;
-    }
-
-    gui_label_t* elemLabel = calloc(1, sizeof(gui_label_t));
-    if (elemLabel == NULL) {
-        free(objLabel);
-        return GUI_RET_FAILURE_NOMEM;
-    }
-
-    //initialize the object container
-    objLabel->_elem = elemLabel;
-    objLabel->_type = GUI_ELEMENT_LABEL;
-    objLabel->_destructor = &Destructor;
-
-    //initialize the element
-    elemLabel->_pos.x = posx;
-    elemLabel->_pos.y = posy;
-
-    if (text != NULL) {
-        char* strLabelText = malloc(strlen(text) + 1);
-        if (strLabelText == NULL) {
-            //malloc for the text string failed, button cannot be created as requested
-            GUI_DestroyObject(objLabel);
-            return NULL;
-        }
-
-        strcpy(strLabelText, text);
-        elemLabel->_text = strLabelText;
-    } else {
-        elemLabel->_text = NULL;
-    }
-
-    return objLabel;
-}
-
 /* --- Private Functions --- */
-static void Destructor(void* element) {
-    gui_label_t* label = (gui_label_t*)element;
-    free(label->_text);
-    free(label);
+static void Destructor(gui_label_t* this) {
+
+    free(this->_text);
+
+    // call base class destructor
+    GUI_Object_GetDestructor()((gui_object_t*)this);
     return;
 }
 
-static gui_ret_t SetPosition(gui_label_t* label, const int32_t posx, const int32_t posy) {
-    if (label == NULL) {
-        return GUI_RET_FAILURE_NULLPTR;
-    }
-
-    label->_pos.x = posx;
-    label->_pos.y = posy;
-
-    return GUI_RET_SUCCESS;
+static void Render(gui_label_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+    
 }
 
-static gui_ret_t SetText(gui_label_t* label, const char* text) {
-    if (label == NULL) {
-        return GUI_RET_FAILURE_NULLPTR;
+/* --- Public Functions --- */
+gui_ret_t GUI_Label_New(
+    gui_label_t* this, 
+    int32_t posx, int32_t posy, bool visible, 
+    char* text) {
+
+    gui_ret_t ret;
+
+    // initialize the base class
+    ret = GUI_Object_New((gui_object_t*)this, posx, posy, visible);
+    if (ret != GUI_RET_SUCCESS) {
+        return ret;
     }
 
+    // initialize the label class
+    ret = GUI_Label_SetText(this, text);
+    if (ret != GUI_RET_SUCCESS) {
+        return ret;
+    }
+
+    // replace override functions
+    ((gui_object_t*)this)->_Render = &Render;
+
+    // replace the destructor
+    ((class_t*)this)->_Destructor = &Destructor;
+
+    return ret;
+}
+
+void (* GUI_Label_GetDestructor(void))(gui_label_t*) {
+    return &Destructor;
+}
+
+gui_ret_t GUI_Label_SetPosition(gui_label_t* this, int32_t posx, int32_t posy) {
+    return GUI_Object_SetPosition((gui_object_t*)this, posx, posy);
+}
+
+point_t GUI_Label_GetPosition(gui_label_t* this) {
+    return GUI_Object_GetPosition((gui_object_t*)this);
+}
+
+gui_ret_t GUI_Label_SetText(gui_label_t* this, const char* text) {
     if (text == NULL) {
-        free(label->_text);
-        label->_text = NULL;
+        free(this->_text);
+        this->_text = NULL;
     } else {
         char* strNewText = malloc(strlen(text));
         if (strNewText == NULL) {
@@ -83,9 +72,13 @@ static gui_ret_t SetText(gui_label_t* label, const char* text) {
         }
 
         strcpy(strNewText, text);
-        free(label->_text);
-        label->_text = strNewText;
+        free(this->_text);
+        this->_text = strNewText;
     }
 
     return GUI_RET_SUCCESS;
+}
+
+const char* GUI_Label_GetText(gui_label_t* this) {
+    return this->_text;
 }

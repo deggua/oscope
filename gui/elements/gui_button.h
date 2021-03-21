@@ -1,5 +1,9 @@
+#ifndef GUI_BUTTON_H
+#define GUI_BUTTON_H
+
 #include <stdint.h>
 
+#include "gui/gui_base.h"
 #include "utils/geometry.h"
 
 #define GUI_BUTTON_WIDTH_MIN 1
@@ -15,3 +19,5 @@ typedef struct {
     rect_t _dim;
     char* _text;
 } gui_button_t;
+
+#endif

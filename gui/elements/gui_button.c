@@ -3,39 +3,48 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils/geometry.h"
 #include "gui/gui_base.h"
+#include "display/display.h"
+#include "gui/gui_renderer.h"
+
 #include "gui/elements/gui_button.h"
 
-static void Destructor(gui_button_t* button) {
-    free(button->_text);
 
-    // class base class destructor
-    GUI_Object_GetDestructor()((gui_object_t*)button);
+/* --- Private Functions --- */
+static void Destructor(gui_button_t* this) {
+    free(this->_text);
+
+    // call base class destructor
+    GUI_Object_GetDestructor()((gui_object_t*)this);
     return;
 }
 
+static void Render(gui_button_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+
+}
+
+/* --- Public Functions --- */
+// Return the destructor function for a button
 void (* GUI_Button_GetDestructor(void))(gui_button_t*) {
     return &Destructor;
 }
 
-// Validates a button's position
-// Returns true if (width,height) are within the bounds set in the #defines
-static bool GUI_ValidateButtonDimensions(
-    const int32_t width, const int32_t height) {
-
-}
-
+// Create a new button
 gui_ret_t GUI_Button_New(
     gui_button_t* this, 
-    int32_t posx, int32_t posy, 
-    int32_t width, int32_t height, 
-    const char* text, bool visible) {
+    int32_t posx, int32_t posy, bool visible,
+    int32_t width, int32_t height, const char* text) {
     
+    gui_ret_t ret;
+
     // initialize the base class
-    GUI_Object_New((gui_object_t*)this, posx, posy, visible);
+    ret = GUI_Object_New((gui_object_t*)this, posx, posy, visible);
+    if (ret != GUI_RET_SUCCESS) {
+        return ret;
+    }
 
     // initialize the button class
-    gui_ret_t ret;
     ret = GUI_Button_SetDimensions(this, width, height);
     if (ret != GUI_RET_SUCCESS) {
         return ret;
@@ -46,49 +55,49 @@ gui_ret_t GUI_Button_New(
         return ret;
     }
 
+    // replace override functions
+    ((gui_object_t*)this)->_Render = &Render;
+
     // replace the destructor
     ((class_t*)this)->_Destructor = &Destructor;
-
-    return;
+    return ret;
 }
 
-// Validates and sets the position of a button
-gui_ret_t SetPosition(gui_button_t* this, const int32_t posx, const int32_t posy) {
-    if (!GUI_ValidateElementPosition(posx, posy)) {
+// Set the position of a button
+gui_ret_t GUI_Button_SetPositon(gui_button_t* this, int32_t posx, int32_t posy) {
+    return GUI_Object_SetPosition((gui_object_t*)this, posx, posy);
+}
+
+// Get the position of a button
+point_t GUI_Button_GetPositon(gui_button_t* this) {
+    return GUI_Object_GetPosition((gui_object_t*)this);
+}
+
+// Sets the dimensions of a button
+gui_ret_t GUI_Button_SetDimensions(gui_button_t* this, int32_t width, int32_t height) {
+
+    if (width < GUI_BUTTON_WIDTH_MIN || width > GUI_BUTTON_WIDTH_MAX ||
+        height < GUI_BUTTON_HEIGHT_MIN || height > GUI_BUTTON_HEIGHT_MAX) {
         return GUI_RET_FAILURE_INVALID;
     }
 
-    button->_pos.x = posx;
-    button->_pos.y = posy;
+    this->_dim.w = width;
+    this->_dim.h = height;
 
     return GUI_RET_SUCCESS;
 }
 
-// Validates and sets the dimensions of a button
-gui_ret_t SetDimensions(gui_button_t* button, const int32_t width, const int32_t height) {
-    if (button == NULL) {
-        return GUI_RET_FAILURE_NULLPTR;
-    }
-
-    if (!GUI_ValidateButtonDimensions(width, height)) {
-        return GUI_RET_FAILURE_INVALID;
-    }
-
-    button->_dim.w = width;
-    button->_dim.h = height;
-
-    return GUI_RET_SUCCESS;
+// Gets the dimensions of a button
+rect_t GUI_Button_GetDimensions(gui_button_t* this) {
+    return this->_dim;
 }
 
-// Changes the text displayed on a button
-gui_ret_t SetText(gui_button_t* button, const char* text) {
-    if (button == NULL) {
-        return GUI_RET_FAILURE_NULLPTR;
-    }
+// Sets the text displayed on a button
+gui_ret_t GUI_Button_SetText(gui_button_t* this, const char* text) {
 
     if (text == NULL) {
-        free(button->_text);
-        button->_text = NULL;
+        free(this->_text);
+        this->_text = NULL;
     } else {
         char* strNewText = malloc(strlen(text));
         if (strNewText == NULL) {
@@ -96,9 +105,15 @@ gui_ret_t SetText(gui_button_t* button, const char* text) {
         }
 
         strcpy(strNewText, text);
-        free(button->_text);
-        button->_text = strNewText;
+        free(this->_text);
+        this->_text = strNewText;
     }
 
     return GUI_RET_SUCCESS;
 }
+
+// Returns the text displayed on a button
+const char* GUI_Button_GetText(gui_button_t* this) {
+    return this->_text;
+}
+
