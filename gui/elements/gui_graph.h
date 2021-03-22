@@ -5,26 +5,37 @@
 
 #include "utils/geometry.h"
 #include "gui/gui_base.h"
+#include "utils/numeric.h"
+#include "utils/containers.h"
 
-#define GUI_MAX_WAVEFORMS 2UL
+#define GUI_GRAPH_NUM_WAVEFORMS 2UL
+
+#define GUI_GRAPH_WIDTH_MIN 1UL
+#define GUI_GRAPH_WIDTH_MAX 1024UL
+#define GUI_GRAPH_HEIGHT_MIN 1UL
+#define GUI_GRAPH_HEIGHT_MAX 1024UL
+
+#define GUI_WAVEFORM_NUM_POINTS 64UL
+
+typedef size_t gui_cursor_index_t;
 
 typedef struct {
-    float xlower, xupper;
-    float ylower, yupper;
+    range_t x, y;
 
-    float* samples;
-    size_t num_samples;
-} gui_graph_waveform_t;
+    float samples[GUI_WAVEFORM_NUM_POINTS];
+} gui_waveform_t;
 
 typedef struct {
+    float pos;
+} gui_cursor_t;
 
+typedef struct {
+    gui_object_t _base;
+    
+    rect_t _dim;
 
-    rect_t dim;
-
-    float xlower, xupper;
-    float ylower, yupper;
-
-    gui_graph_waveform_t* _waveforms[GUI_MAX_WAVEFORMS];
+    gui_waveform_t _waveforms[GUI_GRAPH_NUM_WAVEFORMS];
+    array_t* _cursors;
 } gui_graph_t;
 
 #endif
