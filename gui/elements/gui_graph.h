@@ -35,7 +35,7 @@ typedef struct {
     rect_t _dim;
 
     gui_waveform_t _waveforms[GUI_GRAPH_NUM_WAVEFORMS];
-    array_t* _cursors;
+    linkedlist_t* _cursors;
 } gui_graph_t;
 
 #endif

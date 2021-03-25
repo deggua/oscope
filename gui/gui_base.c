@@ -1,52 +1,50 @@
-#include <string.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "utils/class.h"
-#include "gui/gui.h"
-#include "utils/geometry.h"
-
 #include "gui/gui_base.h"
+
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "gui/gui.h"
+#include "utils/class.h"
+#include "utils/geometry.h"
 
 /* --- Private Functions --- */
 static void Destructor(gui_object_t* this) {
-    //destroy children
-    for (int32_t ii = 0; ii < this->_num_children_max; ii++) {
-        if (this->_children[ii] != NULL) {
-            Destructor(this->_children[ii]);
-        }
+    // destroy children
+    linkedlist_t* child = LinkedList_HeadOf(this->_children);
+    while (child != NULL) {
+        Destructor(child->val);
+        child = child->next;
     }
 
-    //free memory
-    free(this->_children);
+    // free memory
+    LinkedList_DeleteList(this->_children);
 
-    //call superclass destructor
+    // call superclass destructor
     Class_GetDestructor()((class_t*)this);
     return GUI_RET_SUCCESS;
 }
 
 static void Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
-    //abstract method, needs to be implemented by the derived class
+    // abstract method, needs to be implemented by the derived class
     return;
 }
 
 /* --- Public Functions --- */
-void (* GUI_Object_GetDestructor(void))(gui_object_t*) {
+void (*GUI_Object_GetDestructor(void))(gui_object_t*) {
     return &Destructor;
 }
 
 gui_ret_t GUI_Object_New(gui_object_t* this, int32_t posx, int32_t posy, bool visible) {
     gui_ret_t ret;
 
-    //call superclass constructor
+    // call superclass constructor
     Class_New((class_t*)this);
 
-    //setup member variables
-    this->_parent = NULL;
+    // setup member variables
+    this->_parent   = NULL;
     this->_children = NULL;
-    this->_num_children_max = 0;
-    this->_num_children_cur = 0;
 
     ret = GUI_Object_SetVisiblity(this, visible);
     if (ret != GUI_RET_SUCCESS) {
@@ -58,80 +56,58 @@ gui_ret_t GUI_Object_New(gui_object_t* this, int32_t posx, int32_t posy, bool vi
         return ret;
     }
 
-    //setup member functions
+    // setup member functions
     this->_Render = &Render;
 
-    //replace destructor
-    this->_base._Destructor = &Destructor;
+    // replace destructor
+    ((class_t*)this)->_Destructor = &Destructor;
     return GUI_RET_SUCCESS;
 }
 
 // Adds an existing GUI object to a parent object
 gui_ret_t GUI_Object_Add(gui_object_t* this, gui_object_t* parent) {
+    // create the new child node for storage
+    linkedlist_t* child = LinkedList_New();
+    if (child == NULL) {
+        return GUI_RET_FAILURE_NOMEM;
+    }
+    child->val = this;
 
-    //allocate or extend the buffer for children if necessary
+    // either set the buffer to the child, or append it
     if (parent->_children == NULL) {
-        gui_object_t** bufChildren = calloc(GUI_CHILDREN_INIT_ALLOC, sizeof(gui_object_t*));
-        if (bufChildren == NULL) {
-             return GUI_RET_FAILURE_NOMEM; 
-        }
-
-        parent->_num_children_max = GUI_CHILDREN_INIT_ALLOC;
-        parent->_children = bufChildren;
-
-    } else if (parent->_num_children_cur == parent->_num_children_max) {
-        gui_object_t** bufChildren = realloc(parent->_children, 2 * parent->_num_children_max);
-        if (bufChildren == NULL) {
-            return GUI_RET_FAILURE_NOMEM;
-        }
-
-        memset(
-            &bufChildren[parent->_num_children_max], 
-            0x00, 
-            parent->_num_children_max * sizeof(gui_object_t*)
-        );
-
-        parent->_num_children_max = 2 * parent->_num_children_max;
-        parent->_children = bufChildren;
+        parent->_children = child;
+    } else {
+        parent->_children = LinkedList_AppendNode(parent->_children, child);
     }
 
-    //find the first open child slot
-    for (int32_t ii = 0; ii < parent->_num_children_max; ii++) {
-        if (parent->_children[ii] != NULL) {
-            parent->_children[ii] = this;
-            this->_parent = parent;
-            return GUI_RET_SUCCESS;
-        }
-    }
-    
-    return GUI_RET_ERROR;
+    return GUI_RET_SUCCESS;
 }
 
 // Removes an exisitng GUI object from its parent object
 gui_ret_t GUI_Object_Remove(gui_object_t* this) {
-    //if the object was null the operation is invalid
+    // if the object was null the operation is invalid
     if (this == NULL) {
         return GUI_RET_FAILURE_INVALID;
     }
 
-    //parent could be null, in which case we don't do anything
+    // parent could be null, in which case we don't do anything
     gui_object_t* parent = this->_parent;
     if (parent == NULL) {
         return GUI_RET_SUCCESS;
     }
 
-    //detach from parent
-    for (int32_t ii = 0; ii < parent->_num_children_max; ii++) {
-        if (parent->_children[ii] == this) {
-            parent->_children[ii] = NULL;
-            parent->_num_children_cur--;
-            this->_parent = NULL;
+    // find child and detach from parent
+    linkedlist_t* child = LinkedList_HeadOf(parent->_children);
+    while (child != NULL) {
+        if (child->val == this) {
+            parent->_children = LinkedList_RemoveNode(child);
             return GUI_RET_SUCCESS;
         }
+        child = child->next;
     }
 
-    //if it gets here, it means the child pointed to the parent, but the parent didn't have the child listed
-    //which means the GUI was constructed improperly and that bad things probably happened
+    // if we got here the parent was malformed, which means something bad
+    // happened earlier
     return GUI_RET_ERROR;
 }
 
@@ -159,13 +135,13 @@ bool GUI_Object_GetVisibility(gui_object_t* this) {
 void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
     this->_Render(this, theme, scr, origin);
 
-    for (int32_t ii = 0; ii < this->_num_children_max; ii++) {
-        if (this->_children[ii] != NULL) {
-            gui_object_t* child = this->_children[ii];
-            origin.x += this->_pos.x;
-            origin.y += this->_pos.y;
-            GUI_Object_Render(child, theme, scr, origin);
-        }
+    linkedlist_t* child = LinkedList_HeadOf(this->_children);
+    while (child != NULL) {
+        point_t child_origin;
+        child_origin.x = origin.x + this->_pos.x;
+        child_origin.y = origin.y + this->_pos.y;
+
+        GUI_Object_Render(child->val, theme, scr, child_origin);
     }
 
     return;

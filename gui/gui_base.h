@@ -8,6 +8,7 @@
 #include "gui/gui.h"
 #include "gui/gui_renderer.h"
 #include "display/display.h"
+#include "utils/containers.h"
 
 #define GUI_CHILDREN_INIT_ALLOC 1UL
 
@@ -17,9 +18,7 @@ typedef struct GUI_OBJECT {
 
     // member variables
     struct GUI_OBJECT* _parent;
-    struct GUI_OBJECT** _children;
-    size_t _num_children_cur;
-    size_t _num_children_max;
+    linkedlist_t* _children;
 
     bool _visible;
     point_t _pos;
