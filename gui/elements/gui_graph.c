@@ -1,29 +1,22 @@
-#include <stdint.h>
+#include "gui/elements/gui_graph.h"
+
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "gui/gui_base.h"
-#include "gui/elements/gui_graph.h"
 #include "utils/scope.h"
 
-static void Destructor(gui_graph_t* this) {
+static void Destructor(gui_graph_t* this) {}
 
-}
+static void Render(gui_graph_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {}
 
-static void Render(gui_graph_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
-
-}
-
-void (* GUI_Graph_GetDestructor(void))(gui_graph_t*) {
+void (*GUI_Graph_GetDestructor(void))(gui_graph_t*) {
     return &Destructor;
 }
 
-gui_ret_t GUI_Graph_New(
-    gui_graph_t* this,
-    int32_t posx, int32_t posy, bool visible,
-    int32_t width, int32_t height) {
-
+gui_ret_t GUI_Graph_New(gui_graph_t* this, int32_t posx, int32_t posy, bool visible, int32_t width, int32_t height) {
     gui_ret_t ret;
 
     // initialize the base class
@@ -58,8 +51,8 @@ point_t GUI_Graph_GetPosition(gui_graph_t* this) {
 }
 
 gui_ret_t GUI_Graph_SetDimensions(gui_graph_t* this, int32_t width, int32_t height) {
-    if (width < GUI_GRAPH_WIDTH_MIN || width > GUI_GRAPH_WIDTH_MAX ||
-        height < GUI_GRAPH_HEIGHT_MIN || height > GUI_GRAPH_HEIGHT_MAX) {
+    if (width < GUI_GRAPH_WIDTH_MIN || width > GUI_GRAPH_WIDTH_MAX || height < GUI_GRAPH_HEIGHT_MIN ||
+        height > GUI_GRAPH_HEIGHT_MAX) {
         return GUI_RET_FAILURE_INVALID;
     }
 
@@ -77,14 +70,8 @@ gui_waveform_t* GUI_Graph_GetWaveform(gui_graph_t* this, scope_channel_t channel
     return &this->_waveforms[channel];
 }
 
-gui_cursor_index_t GUI_Graph_AddCursor(float time) {
-    
-}
+gui_cursor_index_t GUI_Graph_AddCursor(float time) {}
 
-void GUI_Graph_SetCursor(gui_cursor_index_t cursor, float time) {
+void GUI_Graph_SetCursor(gui_cursor_index_t cursor, float time) {}
 
-}
-
-gui_ret_t GUI_Graph_RemoveCursor(gui_cursor_index_t cursor) {
-
-}
+gui_ret_t GUI_Graph_RemoveCursor(gui_cursor_index_t cursor) {}

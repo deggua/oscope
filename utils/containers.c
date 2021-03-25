@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include <stdlib.h>
+#include <stddef.h>
 
 #include "utils/containers.h"
 
@@ -109,7 +111,7 @@ linkedlist_t* LinkedList_RemoveNode(linkedlist_t* node) {
 }
 
 linkedlist_t* LinkedList_DeleteNode(linkedlist_t* node) {
-    linkedlist_t* list = LinkedList_Remove(node);
+    linkedlist_t* list = LinkedList_RemoveNode(node);
     free(node);
     return list;
 }
@@ -117,7 +119,6 @@ linkedlist_t* LinkedList_DeleteNode(linkedlist_t* node) {
 void LinkedList_DeleteList(linkedlist_t* list) {
     // break the list, could be cyclic which would cause inf loop
     linkedlist_t* node_prev = list->prev;
-    linkedlist_t* node_next = list->next;
 
     if (node_prev != NULL) {
         node_prev->next = NULL;
@@ -166,7 +167,7 @@ linkedlist_t* LinkedList_MoveToHead(linkedlist_t* node) {
         return node;
     }
 
-    linkedlist_t* list = LinkedList_Remove(node);
+    linkedlist_t* list = LinkedList_RemoveNode(node);
     return LinkedList_AppendList(node, list);
 }
 
@@ -179,7 +180,7 @@ linkedlist_t* LinkedList_MoveToTail(linkedlist_t* node) {
         return node;
     }
 
-    linkedlist_t* list = LinkedList_Remove(node);
+    linkedlist_t* list = LinkedList_RemoveNode(node);
     return LinkedList_AppendNode(list, node);
 }
 

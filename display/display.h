@@ -8,8 +8,8 @@
 #include "utils/geometry.h"
 
 /* --- Defines --- */
-#define resWidth  (480)
-#define resHeight (272)
+#define SCR_RES_WIDTH  (480)
+#define SCR_RES_HEIGHT (272)
 
 /*
 typedef uint16_t rgb565_t
@@ -21,9 +21,9 @@ void RGB565_SetRGB(rgb565_t* pix, uint8_t r, uint8_t g, uint8_t b) {
 /* --- Types, Structs, Unions --- */
 typedef union {
     struct {
-        uint16_t r : 5;
-        uint16_t g : 6;
         uint16_t b : 5;
+        uint16_t g : 6;
+        uint16_t r : 5;
     };
     uint16_t rgb;
 } rgb565_t;
@@ -39,13 +39,13 @@ typedef union {
 
 typedef struct {
     rect_t            res;
-    volatile rgb565_t pix[resWidth][resHeight];
+    volatile rgb565_t pix[SCR_RES_WIDTH][SCR_RES_HEIGHT];
 } screen_t;
 
 typedef rgb888_t color_t;
 
 /* --- Global Variables --- */
-volatile screen_t screen = {.pix = {0}, .res.w = resWidth, .res.h = resHeight};
+extern screen_t screen;
 
 /* --- Public Functions --- */
 void SCR_DrawPixel(int32_t x0, int32_t y0, color_t rgb);

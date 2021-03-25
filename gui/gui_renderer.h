@@ -1,6 +1,8 @@
 #ifndef GUI_RENDERER_H
 #define GUI_RENDERER_H
 
+#include "display/display.h"
+
 #define GUI_NUM_ACCENTS 4
 
 typedef struct {

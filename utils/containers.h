@@ -2,6 +2,7 @@
 #define CONTAINERS_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct {
     size_t len;

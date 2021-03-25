@@ -13,6 +13,8 @@
 #define FONT_HEIGHT 8UL
 #define FONT_WIDTH  (sizeof(font) / FONT_CHARS)
 
+screen_t screen = {.pix = {0}, .res.w = SCR_RES_WIDTH, .res.h = SCR_RES_HEIGHT};
+
 /* --- Private Functions --- */
 static point_t ConvertCoord_VirtualToReal(int32_t posx, int32_t posy) {
     point_t ret;
@@ -180,7 +182,7 @@ static void FillTopFlatTriangle(point_t v0, point_t v1, point_t v2, color_t rgb)
 /* --- Public Functions --- */
 void SCR_DrawPixel(int32_t x0, int32_t y0, color_t rgb) {
     // check for invalid coord
-    if (x0 < 0 || x0 > resWidth || y0 < 0 || y0 > resHeight) {
+    if (x0 < 0 || x0 > SCR_RES_WIDTH || y0 < 0 || y0 > SCR_RES_HEIGHT) {
         return;
     }
 
@@ -257,7 +259,7 @@ void SCR_DrawRectangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, bool fill
         SCR_DrawLine(x0, y0, x0, y1, rgb);
         SCR_DrawLine(x0, y0, x1, y0, rgb);
         SCR_DrawLine(x1, y1, x0, y1, rgb);
-        SCR_DrawLIne(x1, y1, x1, y0, rgb);
+        SCR_DrawLine(x1, y1, x1, y0, rgb);
     }
 
     return;

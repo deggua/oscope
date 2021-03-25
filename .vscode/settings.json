@@ -3,6 +3,7 @@
         "stdint.h": "c",
         "cstdint": "c",
         "string.h": "c",
-        "gui_label.h": "c"
+        "gui_label.h": "c",
+        "scope.h": "c"
     }
 }
