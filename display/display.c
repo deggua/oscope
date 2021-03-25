@@ -24,7 +24,7 @@ static point_t ConvertCoord_VirtualToReal(int32_t posx, int32_t posy) {
     return ret;
 }
 
-static rgb888_t RGB888(rgb565_t rgb) {
+rgb888_t RGB888(rgb565_t rgb) {
     rgb888_t ret;
     ret.r = rgb.r << 3;
     ret.g = rgb.g << 2;
@@ -33,7 +33,7 @@ static rgb888_t RGB888(rgb565_t rgb) {
     return ret;
 }
 
-static rgb565_t RGB565(rgb888_t rgb) {
+rgb565_t RGB565(rgb888_t rgb) {
     rgb565_t ret;
     ret.r = rgb.r >> 3;
     ret.g = rgb.g >> 2;
@@ -182,14 +182,14 @@ static void FillTopFlatTriangle(point_t v0, point_t v1, point_t v2, color_t rgb)
 /* --- Public Functions --- */
 void SCR_DrawPixel(int32_t x0, int32_t y0, color_t rgb) {
     // check for invalid coord
-    if (x0 < 0 || x0 > SCR_RES_WIDTH || y0 < 0 || y0 > SCR_RES_HEIGHT) {
+    if (x0 < 0 || x0 > screen.res.w || y0 < 0 || y0 > screen.res.h) {
         return;
     }
 
     point_t  coordReal = ConvertCoord_VirtualToReal(x0, y0);
     rgb565_t colorReal = RGB565(rgb);
 
-    screen.pix[coordReal.x][coordReal.y] = colorReal;
+    screen.pix[coordReal.x + screen.res.w * coordReal.y] = colorReal;
     return;
 }
 
