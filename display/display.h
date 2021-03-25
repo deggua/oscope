@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "display/color.h"
 #include "utils/geometry.h"
 
 /* --- Defines --- */
@@ -19,30 +20,10 @@ void RGB565_SetRGB(rgb565_t* pix, uint8_t r, uint8_t g, uint8_t b) {
 */
 
 /* --- Types, Structs, Unions --- */
-typedef union {
-    struct {
-        uint16_t b : 5;
-        uint16_t g : 6;
-        uint16_t r : 5;
-    };
-    uint16_t rgb;
-} rgb565_t;
-
-typedef union {
-    struct {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-    };
-    uint32_t rgb;
-} rgb888_t;
-
 typedef struct {
     rect_t            res;
     volatile rgb565_t pix[SCR_RES_WIDTH * SCR_RES_HEIGHT];
 } screen_t;
-
-typedef rgb888_t color_t;
 
 /* --- Global Variables --- */
 extern screen_t screen;
@@ -62,7 +43,4 @@ void SCR_DrawString(int32_t x0, int32_t y0, const char* text, int32_t scale, col
 
 void SCR_DrawChar(int32_t x0, int32_t y0, char cc, int32_t scale, color_t rgb);
 
-rgb888_t RGB888(rgb565_t rgb);
-
-rgb565_t RGB565(rgb888_t rgb);
 #endif
