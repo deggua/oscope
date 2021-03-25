@@ -1,3 +1,6 @@
+#ifndef COLOR_H
+#define COLOR_H
+
 #include <stdint.h>
 
 #include "utils/geometry.h"
@@ -28,3 +31,5 @@ extern color_t color_white, color_black, color_red, color_green, color_blue, col
 rgb888_t RGB888(rgb565_t rgb);
 
 rgb565_t RGB565(rgb888_t rgb);
+
+#endif
