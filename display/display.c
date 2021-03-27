@@ -19,8 +19,8 @@ screen_t screen = {.pix = {0}, .res.w = SCR_RES_WIDTH, .res.h = SCR_RES_HEIGHT};
 /* --- Private Functions --- */
 static point_t ConvertCoord_VirtualToReal(int32_t posx, int32_t posy) {
     point_t ret;
-    ret.x = screen.res.w - posx;
-    ret.y = screen.res.h - posy;
+    ret.x = screen.res.w - posx - 1;
+    ret.y = screen.res.h - posy - 1;
 
     return ret;
 }
@@ -133,11 +133,11 @@ static void Draw8CirclePoints(int32_t xc, int32_t yc, int32_t x0, int32_t y0, bo
 }
 
 static void FillBottomFlatTriangle(point_t v0, point_t v1, point_t v2, color_t rgb) {
-    float invslope1 = (v1.x - v2.x) / (v1.y - v0.y);
-    float invslope2 = (v2.x - v0.x) / (v2.y - v0.y);
+    float invslope1 = (v0.x - v1.x) / (float)(v0.y - v1.y);
+    float invslope2 = (v0.x - v2.x) / (float)(v0.y - v2.y);
 
-    float curx1 = v1.x;
-    float curx2 = v1.x;
+    float curx1 = v0.x;
+    float curx2 = v0.x;
 
     for (int32_t yy = v0.y; yy <= v1.y; yy++) {
         SCR_DrawLine((int32_t)curx1, yy, (int32_t)curx2, yy, rgb);
@@ -148,13 +148,13 @@ static void FillBottomFlatTriangle(point_t v0, point_t v1, point_t v2, color_t r
 }
 
 static void FillTopFlatTriangle(point_t v0, point_t v1, point_t v2, color_t rgb) {
-    float invslope1 = (v2.x - v0.x) / (v2.y - v0.y);
-    float invslope2 = (v2.x - v1.x) / (v2.y - v1.y);
+    float invslope1 = (v2.x - v0.x) / (float)(v2.y - v0.y);
+    float invslope2 = (v2.x - v1.x) / (float)(v2.y - v1.y);
 
     float curx1 = v2.x;
     float curx2 = v2.x;
 
-    for (int32_t yy = v2.y; yy <= v0.y; yy++) {
+    for (int32_t yy = v2.y; yy > v0.y; yy--) {
         SCR_DrawLine((int32_t)curx1, yy, (int32_t)curx2, yy, rgb);
         curx1 -= invslope1;
         curx2 -= invslope2;
@@ -165,7 +165,7 @@ static void FillTopFlatTriangle(point_t v0, point_t v1, point_t v2, color_t rgb)
 /* --- Public Functions --- */
 void SCR_DrawPixel(int32_t x0, int32_t y0, color_t rgb) {
     // check for invalid coord
-    if (x0 < 0 || x0 > screen.res.w || y0 < 0 || y0 > screen.res.h) {
+    if (x0 < 0 || x0 >= screen.res.w || y0 < 0 || y0 >= screen.res.h) {
         return;
     }
 
@@ -327,9 +327,16 @@ void SCR_DrawTriangle(int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2
 
 void SCR_DrawString(int32_t x0, int32_t y0, const char* str, int32_t scale, color_t rgb) {
     int32_t xx = x0;
+    int32_t yy = y0;
     while (*str) {
-        SCR_DrawChar(xx, y0, *str++, scale, rgb);
-        xx += FONT_WIDTH * scale;
+        if (*str == '\n') {
+            xx = x0;
+            yy += FONT_HEIGHT * scale;
+        } else {
+            SCR_DrawChar(xx, yy, *str, scale, rgb);
+            xx += FONT_WIDTH * scale;
+        }
+        str++;
     }
 
     return;
