@@ -23,7 +23,7 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
 
     const int32_t spaceText = 1;
     const int32_t scaleText = 1;
-    const char    bufTemp[8];
+    char          bufTemp[8];
 
     // draw border
     SCR_DrawRectangle(
@@ -35,21 +35,21 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         theme->border);
 
     // draw x-axis division lines
-    for (int32_t ii = 1; ii < GUI_GRAPH_DIVISIONS_X - 1; ii++) {
+    for (int32_t ii = 1; ii < GUI_GRAPH_DIVISIONS_X; ii++) {
         SCR_DrawLine(
             origin.x + posGraph.x + ii * incXDivSpacing,
             origin.y + posGraph.y + 1,
             origin.x + posGraph.x + ii * incXDivSpacing,
-            origin.y + posGraph.y + dimGraph.y - 1,
+            origin.y + posGraph.y + dimGraph.h - 1,
             theme->subtle);
     }
 
     // draw y-axis division lines
-    for (int32_t ii = 1; ii < GUI_GRAPH_DIVISIONS_Y - 1; ii++) {
+    for (int32_t ii = 1; ii < GUI_GRAPH_DIVISIONS_Y; ii++) {
         SCR_DrawLine(
             origin.x + posGraph.x + 1,
             origin.y + posGraph.y + ii * incYDivSpacing,
-            origin.x + posGraph.x + dimGraph.x - 1,
+            origin.x + posGraph.x + dimGraph.w - 1,
             origin.y + posGraph.y + ii * incYDivSpacing,
             theme->subtle);
     }
@@ -58,16 +58,16 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
     float time        = thisGraph->_waveforms[0].x.lower;
     float incXDivTime = (thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower) / GUI_GRAPH_DIVISIONS_X;
 
-    for (int32_t ii = 0; ii < GUI_GRAPH_DIVISIONS_X; ii++) {
-        snprintf(bufTemp, sizeof(bufTemp), "%.2f", time);
+    for (int32_t ii = 0; ii <= GUI_GRAPH_DIVISIONS_X; ii++) {
+        snprintf(bufTemp, sizeof(bufTemp), "%4.0f", time);
         time += incXDivTime;
 
         SCR_DrawString(
-            origin.x + posGraph.x + ii * incXDivSpacing,
-            origin.y + posGraph.y + dimGraph.h + spaceText,
+            origin.x + posGraph.x + ii * incXDivSpacing - 2 * FONT_WIDTH,
+            origin.y + posGraph.y + dimGraph.h + 5 * spaceText,
             bufTemp,
             scaleText,
-            theme->accents[0]);
+            theme->text);
     }
 
     // draw division y-labels for CH0
@@ -75,30 +75,30 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
     float incYDivVoltsCH0 =
         (thisGraph->_waveforms[0].y.upper - thisGraph->_waveforms[0].y.lower) / GUI_GRAPH_DIVISIONS_Y;
 
-    for (int32_t ii = 0; ii < GUI_GRAPH_DIVISIONS_Y; ii++) {
-        snprintf(bufTemp, sizeof(bufTemp), "%.2f", volt);
-        volt += incYDivVoltsCH0;
+    for (int32_t ii = 0; ii <= GUI_GRAPH_DIVISIONS_Y; ii++) {
+        snprintf(bufTemp, sizeof(bufTemp), "%.1f", volt);
+        volt -= incYDivVoltsCH0;
 
         SCR_DrawString(
-            origin.x + posGraph.x - spaceText - 5 * FONT_WIDTH,
-            origin.y + posGraph.y + ii * incYDivSpacing,
+            origin.x + posGraph.x - spaceText - 3 * FONT_WIDTH,
+            origin.y + posGraph.y + ii * incYDivSpacing - 4,
             bufTemp,
             scaleText,
             theme->accents[0]);
     }
 
     // draw division y-labels for CH1
-    float volt = thisGraph->_waveforms[1].y.upper;
+    volt = thisGraph->_waveforms[1].y.upper;
     float incYDivVoltsCH1 =
         (thisGraph->_waveforms[1].y.upper - thisGraph->_waveforms[1].y.lower) / GUI_GRAPH_DIVISIONS_Y;
 
-    for (int32_t ii = 0; ii < GUI_GRAPH_DIVISIONS_Y; ii++) {
-        snprintf(bufTemp, sizeof(bufTemp), "%.2f", volt);
-        volt += incYDivVoltsCH1;
+    for (int32_t ii = 0; ii <= GUI_GRAPH_DIVISIONS_Y; ii++) {
+        snprintf(bufTemp, sizeof(bufTemp), "%.1f", volt);
+        volt -= incYDivVoltsCH1;
 
         SCR_DrawString(
-            origin.x + posGraph.x - spaceText - 5 * FONT_WIDTH,
-            origin.y + posGraph.y + ii * incYDivSpacing,
+            origin.x + posGraph.x + dimGraph.w + 9 * spaceText,
+            origin.y + posGraph.y + ii * incYDivSpacing - 4,
             bufTemp,
             scaleText,
             theme->accents[1]);
@@ -131,7 +131,7 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
 
     // draw waveform for CH1
     float spanVerticalCH1 = thisGraph->_waveforms[1].y.upper - thisGraph->_waveforms[1].y.lower;
-    float incXPos         = (float)dimGraph.w / (float)GUI_WAVEFORM_NUM_POINTS;
+    float incXPos         = (float)dimGraph.w / (float)(GUI_WAVEFORM_NUM_POINTS - 1);
 
     for (int32_t ii = 0; ii < GUI_WAVEFORM_NUM_POINTS - 1; ii++) {
         float adjY0 = thisGraph->_waveforms[1].samples[ii];
@@ -140,13 +140,13 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         if (adjY0 > thisGraph->_waveforms[1].y.upper) {
             adjY0 = thisGraph->_waveforms[1].y.upper;
         } else if (adjY0 < thisGraph->_waveforms[0].x.lower) {
-            adjY0 = thisGraph->_waveforms[0].x.lower;
+            adjY0 = thisGraph->_waveforms[1].x.lower;
         }
 
         if (adjY1 > thisGraph->_waveforms[1].y.upper) {
             adjY1 = thisGraph->_waveforms[1].y.upper;
         } else if (adjY1 < thisGraph->_waveforms[0].x.lower) {
-            adjY1 = thisGraph->_waveforms[0].x.lower;
+            adjY1 = thisGraph->_waveforms[1].x.lower;
         }
 
         float offsetY0, offsetY1;
@@ -162,33 +162,37 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         int32_t posX0 = (int32_t)(incXPos * ii);
         int32_t posX1 = (int32_t)(incXPos * (ii + 1));
 
-        SCR_DrawLine(posX0, posY0, posX1, posY1, theme->accents[1]);
+        SCR_DrawLine(
+            origin.x + posGraph.x + posX0,
+            origin.y + posGraph.y + posY0,
+            origin.x + posGraph.x + posX1,
+            origin.y + posGraph.y + posY1,
+            theme->accents[1]);
     }
 
     // draw waveform for CH0
-    // draw waveform for CH1
-    float spanVerticalCH1 = thisGraph->_waveforms[1].y.upper - thisGraph->_waveforms[1].y.lower;
-    float incXPos         = (float)dimGraph.w / (float)GUI_WAVEFORM_NUM_POINTS;
+    float spanVerticalCH0 = thisGraph->_waveforms[0].y.upper - thisGraph->_waveforms[0].y.lower;
+    incXPos               = (float)dimGraph.w / (float)(GUI_WAVEFORM_NUM_POINTS - 1);
 
     for (int32_t ii = 0; ii < GUI_WAVEFORM_NUM_POINTS - 1; ii++) {
-        float adjY0 = thisGraph->_waveforms[1].samples[ii];
-        float adjY1 = thisGraph->_waveforms[1].samples[ii + 1];
+        float adjY0 = thisGraph->_waveforms[0].samples[ii];
+        float adjY1 = thisGraph->_waveforms[0].samples[ii + 1];
 
-        if (adjY0 > thisGraph->_waveforms[1].y.upper) {
-            adjY0 = thisGraph->_waveforms[1].y.upper;
+        if (adjY0 > thisGraph->_waveforms[0].y.upper) {
+            adjY0 = thisGraph->_waveforms[0].y.upper;
         } else if (adjY0 < thisGraph->_waveforms[0].x.lower) {
             adjY0 = thisGraph->_waveforms[0].x.lower;
         }
 
-        if (adjY1 > thisGraph->_waveforms[1].y.upper) {
-            adjY1 = thisGraph->_waveforms[1].y.upper;
+        if (adjY1 > thisGraph->_waveforms[0].y.upper) {
+            adjY1 = thisGraph->_waveforms[0].y.upper;
         } else if (adjY1 < thisGraph->_waveforms[0].x.lower) {
             adjY1 = thisGraph->_waveforms[0].x.lower;
         }
 
         float offsetY0, offsetY1;
-        offsetY0 = thisGraph->_waveforms[1].samples[ii] - thisGraph->_waveforms[1].y.lower;
-        offsetY1 = thisGraph->_waveforms[1].samples[ii + 1] - thisGraph->_waveforms[1].y.lower;
+        offsetY0 = thisGraph->_waveforms[0].samples[ii] - thisGraph->_waveforms[0].y.lower;
+        offsetY1 = thisGraph->_waveforms[0].samples[ii + 1] - thisGraph->_waveforms[0].y.lower;
 
         float posNormY0 = offsetY0 / spanVerticalCH1;
         float posNormY1 = offsetY1 / spanVerticalCH1;
@@ -199,7 +203,12 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         int32_t posX0 = (int32_t)(incXPos * ii);
         int32_t posX1 = (int32_t)(incXPos * (ii + 1));
 
-        SCR_DrawLine(posX0, posY0, posX1, posY1, theme->accents[1]);
+        SCR_DrawLine(
+            origin.x + posGraph.x + posX0,
+            origin.y + posGraph.y + posY0,
+            origin.x + posGraph.x + posX1,
+            origin.y + posGraph.y + posY1,
+            theme->accents[0]);
     }
 
     return;
@@ -263,7 +272,14 @@ gui_waveform_t* GUI_Graph_GetWaveform(gui_graph_t* this, scope_channel_t channel
 
 linkedlist_t* GUI_Graph_AddCursor(gui_graph_t* this, float time) {
     linkedlist_t* listCursor = LinkedList_New();
-    gui_cursor_t* guiCursor  = calloc(1, sizeof(gui_cursor_t));
+    if (listCursor == NULL) {
+        return NULL;
+    }
+
+    gui_cursor_t* guiCursor = calloc(1, sizeof(gui_cursor_t));
+    if (guiCursor == NULL) {
+        return NULL;
+    }
 
     guiCursor->pos  = time;
     listCursor->val = guiCursor;

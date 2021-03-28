@@ -28,4 +28,8 @@ gui_ret_t GUI_Label_SetText(gui_label_t* this, const char* text);
 
 const char* GUI_Label_GetText(gui_label_t* this);
 
+gui_ret_t GUI_Label_SetScale(gui_label_t* this, int32_t scale);
+
+int32_t GUI_Label_GetScale(gui_label_t* this);
+
 #endif

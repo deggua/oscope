@@ -7,8 +7,8 @@
 #include <string.h>
 
 #include "display/color.h"
-#include "display/fonts/renew_font.h"
 #include "utils/geometry.h"
+#include "display/fonts/renew_font.h"
 
 screen_t screen = {.pix = {0}, .res.w = SCR_RES_WIDTH, .res.h = SCR_RES_HEIGHT};
 

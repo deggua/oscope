@@ -18,6 +18,7 @@ typedef struct {
     // member variables
     rect_t _dim;
     char*  _text;
+    bool   _sel;
 } gui_button_t;
 
 /* --- Public Functions --- */
@@ -35,10 +36,10 @@ gui_ret_t GUI_Button_New(
     const char* text);
 
 // Set the position of a button
-gui_ret_t GUI_Button_SetPositon(gui_button_t* this, int32_t posx, int32_t posy);
+gui_ret_t GUI_Button_SetPosition(gui_button_t* this, int32_t posx, int32_t posy);
 
 // Get the position of a button
-point_t GUI_Button_GetPositon(gui_button_t* this);
+point_t GUI_Button_GetPosition(gui_button_t* this);
 
 // Sets the dimensions of a button
 gui_ret_t GUI_Button_SetDimensions(gui_button_t* this, int32_t width, int32_t height);

@@ -8,13 +8,14 @@
 #include "display/color.h"
 #include "utils/geometry.h"
 
+
 /* --- Defines --- */
 #define SCR_RES_WIDTH  (480)
 #define SCR_RES_HEIGHT (272)
 
 #define FONT_CHARS  96UL
 #define FONT_HEIGHT 8UL
-#define FONT_WIDTH  (sizeof(font) / FONT_CHARS)
+#define FONT_WIDTH  7UL
 
 /*
 typedef uint16_t rgb565_t

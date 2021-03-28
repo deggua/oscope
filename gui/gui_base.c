@@ -134,15 +134,20 @@ bool GUI_Object_GetVisibility(gui_object_t* this) {
 }
 
 void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, point_t origin) {
-    this->_Render(this, theme, origin);
+    if (this->_visible == true) {
+        this->_Render(this, theme, origin);
 
-    linkedlist_t* child = LinkedList_HeadOf(this->_children);
-    while (child != NULL) {
-        point_t child_origin;
-        child_origin.x = origin.x + this->_pos.x;
-        child_origin.y = origin.y + this->_pos.y;
+        if (this->_children != NULL) {
+            linkedlist_t* child = LinkedList_HeadOf(this->_children);
+            while (child != NULL) {
+                point_t child_origin;
+                child_origin.x = origin.x + this->_pos.x;
+                child_origin.y = origin.y + this->_pos.y;
 
-        GUI_Object_Render(child->val, theme, child_origin);
+                GUI_Object_Render(child->val, theme, child_origin);
+                child = child->next;
+            }
+        }
     }
 
     return;

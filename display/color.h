@@ -26,7 +26,7 @@ typedef union {
 typedef rgb888_t color_t;
 
 extern const color_t color_white, color_black, color_red, color_green, color_blue, color_purple, color_orange, color_yellow,
-    color_cyan, color_magenta;
+    color_cyan, color_magenta, color_gray;
 
 rgb888_t RGB888(rgb565_t rgb);
 
