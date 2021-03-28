@@ -7,6 +7,7 @@
 
 typedef struct {
     color_t foreground, background;
+    color_t subtle;
     color_t border;
     color_t text;
     color_t accents[GUI_NUM_ACCENTS];

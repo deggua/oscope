@@ -16,6 +16,9 @@
 #define GUI_GRAPH_HEIGHT_MIN 1UL
 #define GUI_GRAPH_HEIGHT_MAX 1024UL
 
+#define GUI_GRAPH_DIVISIONS_X 10
+#define GUI_GRAPH_DIVISIONS_Y 10
+
 #define GUI_WAVEFORM_NUM_POINTS 64UL
 
 typedef size_t gui_cursor_index_t;
@@ -53,10 +56,10 @@ rect_t GUI_Graph_GetDimensions(gui_graph_t* this);
 
 gui_waveform_t* GUI_Graph_GetWaveform(gui_graph_t* this, scope_channel_t channel);
 
-gui_cursor_index_t GUI_Graph_AddCursor(float time);
+linkedlist_t* GUI_Graph_AddCursor(gui_graph_t* this, float time);
 
-void GUI_Graph_SetCursor(gui_cursor_index_t cursor, float time);
+gui_ret_t GUI_Graph_UpdateCursor(gui_graph_t* this, linkedlist_t* cursor, float time);
 
-gui_ret_t GUI_Graph_RemoveCursor(gui_cursor_index_t cursor);
+gui_ret_t GUI_Graph_RemoveCursor(gui_graph_t* this, linkedlist_t* cursor);
 
 #endif

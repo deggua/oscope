@@ -10,10 +10,6 @@
 #include "display/fonts/renew_font.h"
 #include "utils/geometry.h"
 
-#define FONT_CHARS  96UL
-#define FONT_HEIGHT 8UL
-#define FONT_WIDTH  (sizeof(font) / FONT_CHARS)
-
 screen_t screen = {.pix = {0}, .res.w = SCR_RES_WIDTH, .res.h = SCR_RES_HEIGHT};
 
 /* --- Private Functions --- */
