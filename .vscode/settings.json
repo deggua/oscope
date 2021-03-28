@@ -4,6 +4,8 @@
         "cstdint": "c",
         "string.h": "c",
         "gui_label.h": "c",
-        "scope.h": "c"
+        "scope.h": "c",
+        "display.h": "c",
+        "gui_base.h": "c"
     }
 }

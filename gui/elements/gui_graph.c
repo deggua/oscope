@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "display/display.h"
 #include "gui/gui_base.h"
 #include "utils/scope.h"
 

@@ -10,7 +10,6 @@
 #include "utils/containers.h"
 #include "utils/geometry.h"
 
-
 #define GUI_CHILDREN_INIT_ALLOC 1UL
 
 typedef struct GUI_OBJECT {
@@ -25,7 +24,7 @@ typedef struct GUI_OBJECT {
     point_t _pos;
 
     // override functions
-    void (*_Render)(void*, gui_theme_t*, screen_t*, point_t);
+    void (*_Render)(void*, gui_theme_t*, point_t);
 } gui_object_t;
 
 void (*GUI_Object_GetDestructor(void))(void*);
@@ -46,6 +45,6 @@ gui_ret_t GUI_Object_SetVisiblity(gui_object_t* this, bool visible);
 
 bool GUI_Object_GetVisibility(gui_object_t* this);
 
-void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin);
+void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, point_t origin);
 
 #endif

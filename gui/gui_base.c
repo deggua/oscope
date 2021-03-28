@@ -12,8 +12,8 @@
 /* --- Private Functions --- */
 static void Destructor(void* this) {
     // destroy children
-	gui_object_t* thisObject = this;
-    linkedlist_t* child = LinkedList_HeadOf(thisObject->_children);
+    gui_object_t* thisObject = this;
+    linkedlist_t* child      = LinkedList_HeadOf(thisObject->_children);
     while (child != NULL) {
         Destructor(child->val);
         child = child->next;
@@ -27,7 +27,7 @@ static void Destructor(void* this) {
     return;
 }
 
-static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+static void Render(void* this, gui_theme_t* theme, point_t origin) {
     // abstract method, needs to be implemented by the derived class
     return;
 }
@@ -133,8 +133,8 @@ bool GUI_Object_GetVisibility(gui_object_t* this) {
     return this->_visible;
 }
 
-void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
-    this->_Render(this, theme, scr, origin);
+void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, point_t origin) {
+    this->_Render(this, theme, origin);
 
     linkedlist_t* child = LinkedList_HeadOf(this->_children);
     while (child != NULL) {
@@ -142,7 +142,7 @@ void GUI_Object_Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, po
         child_origin.x = origin.x + this->_pos.x;
         child_origin.y = origin.y + this->_pos.y;
 
-        GUI_Object_Render(child->val, theme, scr, child_origin);
+        GUI_Object_Render(child->val, theme, child_origin);
     }
 
     return;

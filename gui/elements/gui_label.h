@@ -6,17 +6,17 @@
 #include "gui/gui_base.h"
 #include "utils/geometry.h"
 
-
 typedef struct {
     // derived from
     gui_object_t _base;
 
     // member variables
-    char* _text;
+    char*   _text;
+    int32_t _scale;
 } gui_label_t;
 
 /* --- Public Functions --- */
-gui_ret_t GUI_Label_New(gui_label_t* this, int32_t posx, int32_t posy, bool visible, char* text);
+gui_ret_t GUI_Label_New(gui_label_t* this, int32_t posx, int32_t posy, bool visible, char* text, int32_t scale);
 
 void (*GUI_Label_GetDestructor(void))(void*);
 

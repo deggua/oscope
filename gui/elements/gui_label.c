@@ -1,14 +1,17 @@
-#include <stdint.h>
+#include "gui/elements/gui_label.h"
+
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "display/display.h"
 #include "gui/gui_base.h"
-#include "gui/elements/gui_label.h"
+
 
 /* --- Private Functions --- */
 static void Destructor(void* this) {
-	gui_label_t* thisLabel = this;
+    gui_label_t* thisLabel = this;
     free(thisLabel->_text);
 
     // call base class destructor
@@ -16,16 +19,19 @@ static void Destructor(void* this) {
     return;
 }
 
-static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
-    
+static void Render(void* this, gui_theme_t* theme, point_t origin) {
+    gui_label_t* thisLabel;
+    point_t      posLabel   = GUI_Label_GetPosition(thisLabel);
+    int32_t      scaleLabel = GUI_Label_GetScale(thisLabel);
+    const char*  textLabel  = GUI_Label_GetText(thisLabel);
+
+    SCR_DrawString(origin.x + posLabel.x, origin.y + posLabel.y, textLabel, scaleLabel, theme->text);
+
+    return;
 }
 
 /* --- Public Functions --- */
-gui_ret_t GUI_Label_New(
-    gui_label_t* this, 
-    int32_t posx, int32_t posy, bool visible, 
-    char* text) {
-
+gui_ret_t GUI_Label_New(gui_label_t* this, int32_t posx, int32_t posy, bool visible, char* text, int32_t scale) {
     gui_ret_t ret;
 
     // initialize the base class
@@ -40,6 +46,11 @@ gui_ret_t GUI_Label_New(
         return ret;
     }
 
+    ret = GUI_Label_SetScale(this, scale);
+    if (ret != GUI_RET_SUCCESS) {
+        return ret;
+    }
+
     // replace override functions
     ((gui_object_t*)this)->_Render = &Render;
 
@@ -49,7 +60,7 @@ gui_ret_t GUI_Label_New(
     return ret;
 }
 
-void (* GUI_Label_GetDestructor(void))(void*) {
+void (*GUI_Label_GetDestructor(void))(void*) {
     return &Destructor;
 }
 
@@ -81,4 +92,17 @@ gui_ret_t GUI_Label_SetText(gui_label_t* this, const char* text) {
 
 const char* GUI_Label_GetText(gui_label_t* this) {
     return this->_text;
+}
+
+gui_ret_t GUI_Label_SetScale(gui_label_t* this, int32_t scale) {
+    if (scale < 1) {
+        return GUI_RET_FAILURE_INVALID;
+    }
+
+    this->_scale = scale;
+    return GUI_RET_SUCCESS;
+}
+
+int32_t GUI_Label_GetScale(gui_label_t* this) {
+    return this->_scale;
 }

@@ -1,32 +1,50 @@
-#include <stdint.h>
+#include "gui/elements/gui_window.h"
+
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include "display/display.h"
 #include "gui/gui_base.h"
-#include "gui/elements/gui_window.h"
 #include "utils/geometry.h"
 
 /* --- Private Functions --- */
 static void Destructor(void* this) {
-    //call base class destructor
+    // call base class destructor
     GUI_Object_GetDestructor()((gui_object_t*)this);
     return;
 }
 
-static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+static void Render(void* this, gui_theme_t* theme, point_t origin) {
+    gui_window_t* thisWindow = (gui_window_t*)this;
+    point_t       posWindow  = GUI_Window_GetPosition(thisWindow);
+    rect_t        dimWindow  = GUI_Window_GetDimensions(thisWindow);
 
+    SCR_DrawRectangle(
+        origin.x + posWindow.x,
+        origin.y + posWindow.y,
+        origin.x + posWindow.x + dimWindow.w,
+        origin.y + posWindow.y + dimWindow.h,
+        true,
+        theme->background);
+
+    SCR_DrawRectangle(
+        origin.x + posWindow.x,
+        origin.y + posWindow.y,
+        origin.x + posWindow.x + dimWindow.w,
+        origin.y + posWindow.y + dimWindow.h,
+        false,
+        theme->border);
+
+    return;
 }
 
 /* --- Public Functions --- */
-gui_ret_t GUI_Window_New(
-    gui_window_t* this, 
-    int32_t posx, int32_t posy, bool visible,
-    int32_t width, int32_t height) {
-    
+gui_ret_t GUI_Window_New(gui_window_t* this, int32_t posx, int32_t posy, bool visible, int32_t width, int32_t height) {
     gui_ret_t ret;
 
-    //initialize base class
+    // initialize base class
     ret = GUI_Object_New((gui_object_t*)this, posx, posy, visible);
     if (ret != GUI_RET_SUCCESS) {
         return ret;
@@ -46,7 +64,7 @@ gui_ret_t GUI_Window_New(
     return ret;
 }
 
-void (* GUI_Window_GetDestructor(void))(void*) {
+void (*GUI_Window_GetDestructor(void))(void*) {
     return &Destructor;
 }
 
@@ -59,9 +77,8 @@ point_t GUI_Window_GetPosition(gui_window_t* this) {
 }
 
 gui_ret_t GUI_Window_SetDimensions(gui_window_t* this, int32_t width, int32_t height) {
-    
-    if (width < GUI_WINDOW_WIDTH_MIN || width > GUI_WINDOW_WIDTH_MAX ||
-        height < GUI_WINDOW_HEIGHT_MIN || height > GUI_WINDOW_HEIGHT_MAX) {
+    if (width < GUI_WINDOW_WIDTH_MIN || width > GUI_WINDOW_WIDTH_MAX || height < GUI_WINDOW_HEIGHT_MIN ||
+        height > GUI_WINDOW_HEIGHT_MAX) {
         return GUI_RET_FAILURE_INVALID;
     }
 

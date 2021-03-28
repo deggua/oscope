@@ -12,7 +12,7 @@
 
 /* --- Private Functions --- */
 static void Destructor(void* this) {
-	gui_button_t* thisButton = this;
+    gui_button_t* thisButton = this;
     free(thisButton->_text);
 
     // call base class destructor
@@ -20,7 +20,24 @@ static void Destructor(void* this) {
     return;
 }
 
-static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {}
+static void Render(void* this, gui_theme_t* theme, point_t origin) {
+    gui_button_t* thisButton;
+    point_t       posButton  = GUI_Button_GetPosition(thisButton);
+    rect_t        dimButton  = GUI_Button_GetDimensions(thisButton);
+    const char*   textButton = GUI_Button_GetText(thisButton);
+
+    SCR_DrawRectangle(
+        origin.x + posButton.x,
+        origin.y + posButton.y,
+        origin.x + posButton.x + dimButton.w,
+        origin.y + posButton.y + dimButton.h,
+        false,
+        theme->border);
+
+    SCR_DrawString(origin.x + posButton.x, origin.y + posButton.y, textButton, 1, theme->text);
+
+    return;
+}
 
 /* --- Public Functions --- */
 // Return the destructor function for a button
@@ -65,12 +82,12 @@ gui_ret_t GUI_Button_New(
 }
 
 // Set the position of a button
-gui_ret_t GUI_Button_SetPositon(gui_button_t* this, int32_t posx, int32_t posy) {
+gui_ret_t GUI_Button_SetPosition(gui_button_t* this, int32_t posx, int32_t posy) {
     return GUI_Object_SetPosition((gui_object_t*)this, posx, posy);
 }
 
 // Get the position of a button
-point_t GUI_Button_GetPositon(gui_button_t* this) {
+point_t GUI_Button_GetPosition(gui_button_t* this) {
     return GUI_Object_GetPosition((gui_object_t*)this);
 }
 
