@@ -8,13 +8,13 @@
 #include "utils/geometry.h"
 
 /* --- Private Functions --- */
-static void Destructor(gui_window_t* this) {
+static void Destructor(void* this) {
     //call base class destructor
     GUI_Object_GetDestructor()((gui_object_t*)this);
     return;
 }
 
-static void Render(gui_window_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
 
 }
 
@@ -46,7 +46,7 @@ gui_ret_t GUI_Window_New(
     return ret;
 }
 
-void (* GUI_Window_GetDestructor(void))(gui_window_t*) {
+void (* GUI_Window_GetDestructor(void))(void*) {
     return &Destructor;
 }
 

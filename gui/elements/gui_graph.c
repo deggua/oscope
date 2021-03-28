@@ -8,11 +8,11 @@
 #include "gui/gui_base.h"
 #include "utils/scope.h"
 
-static void Destructor(gui_graph_t* this) {}
+static void Destructor(void* this) {}
 
-static void Render(gui_graph_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {}
+static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {}
 
-void (*GUI_Graph_GetDestructor(void))(gui_graph_t*) {
+void (*GUI_Graph_GetDestructor(void))(void*) {
     return &Destructor;
 }
 
@@ -31,7 +31,7 @@ gui_ret_t GUI_Graph_New(gui_graph_t* this, int32_t posx, int32_t posy, bool visi
         return ret;
     }
 
-    this->_cursors = Array_New(0, sizeof(gui_cursor_t));
+    this->_cursors = LinkedList_New();
 
     // replace override functions
     ((gui_object_t*)this)->_Render = &Render;

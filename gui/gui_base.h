@@ -28,7 +28,7 @@ typedef struct GUI_OBJECT {
     void (*_Render)(void*, gui_theme_t*, screen_t*, point_t);
 } gui_object_t;
 
-void (*GUI_Object_GetDestructor(void))(gui_object_t*);
+void (*GUI_Object_GetDestructor(void))(void*);
 
 gui_ret_t GUI_Object_New(gui_object_t* this, int32_t posx, int32_t posy, bool visible);
 

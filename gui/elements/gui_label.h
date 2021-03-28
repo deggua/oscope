@@ -18,7 +18,7 @@ typedef struct {
 /* --- Public Functions --- */
 gui_ret_t GUI_Label_New(gui_label_t* this, int32_t posx, int32_t posy, bool visible, char* text);
 
-void (*GUI_Label_GetDestructor(void))(gui_label_t*);
+void (*GUI_Label_GetDestructor(void))(void*);
 
 gui_ret_t GUI_Label_SetPosition(gui_label_t* this, int32_t posx, int32_t posy);
 

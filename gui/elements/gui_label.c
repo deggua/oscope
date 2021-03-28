@@ -7,16 +7,16 @@
 #include "gui/elements/gui_label.h"
 
 /* --- Private Functions --- */
-static void Destructor(gui_label_t* this) {
-
-    free(this->_text);
+static void Destructor(void* this) {
+	gui_label_t* thisLabel = this;
+    free(thisLabel->_text);
 
     // call base class destructor
-    GUI_Object_GetDestructor()((gui_object_t*)this);
+    GUI_Object_GetDestructor()((gui_object_t*)thisLabel);
     return;
 }
 
-static void Render(gui_label_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
     
 }
 
@@ -49,7 +49,7 @@ gui_ret_t GUI_Label_New(
     return ret;
 }
 
-void (* GUI_Label_GetDestructor(void))(gui_label_t*) {
+void (* GUI_Label_GetDestructor(void))(void*) {
     return &Destructor;
 }
 

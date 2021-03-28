@@ -10,29 +10,30 @@
 #include "utils/geometry.h"
 
 /* --- Private Functions --- */
-static void Destructor(gui_object_t* this) {
+static void Destructor(void* this) {
     // destroy children
-    linkedlist_t* child = LinkedList_HeadOf(this->_children);
+	gui_object_t* thisObject = this;
+    linkedlist_t* child = LinkedList_HeadOf(thisObject->_children);
     while (child != NULL) {
         Destructor(child->val);
         child = child->next;
     }
 
     // free memory
-    LinkedList_DeleteList(this->_children);
+    LinkedList_DeleteList(thisObject->_children);
 
     // call superclass destructor
-    Class_GetDestructor()((class_t*)this);
-    return GUI_RET_SUCCESS;
+    Class_GetDestructor()((class_t*)thisObject);
+    return;
 }
 
-static void Render(gui_object_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
+static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {
     // abstract method, needs to be implemented by the derived class
     return;
 }
 
 /* --- Public Functions --- */
-void (*GUI_Object_GetDestructor(void))(gui_object_t*) {
+void (*GUI_Object_GetDestructor(void))(void*) {
     return &Destructor;
 }
 

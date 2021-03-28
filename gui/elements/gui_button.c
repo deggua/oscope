@@ -11,19 +11,20 @@
 #include "utils/geometry.h"
 
 /* --- Private Functions --- */
-static void Destructor(gui_button_t* this) {
-    free(this->_text);
+static void Destructor(void* this) {
+	gui_button_t* thisButton = this;
+    free(thisButton->_text);
 
     // call base class destructor
-    GUI_Object_GetDestructor()((gui_object_t*)this);
+    GUI_Object_GetDestructor()((gui_object_t*)thisButton);
     return;
 }
 
-static void Render(gui_button_t* this, gui_theme_t* theme, screen_t* scr, point_t origin) {}
+static void Render(void* this, gui_theme_t* theme, screen_t* scr, point_t origin) {}
 
 /* --- Public Functions --- */
 // Return the destructor function for a button
-void (*GUI_Button_GetDestructor(void))(gui_button_t*) {
+void (*GUI_Button_GetDestructor(void))(void*) {
     return &Destructor;
 }
 

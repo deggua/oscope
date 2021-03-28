@@ -39,7 +39,7 @@ typedef struct {
     linkedlist_t*  _cursors;
 } gui_graph_t;
 
-void (*GUI_Graph_GetDestructor(void))(gui_graph_t*);
+void (*GUI_Graph_GetDestructor(void))(void*);
 
 gui_ret_t GUI_Graph_New(gui_graph_t* this, int32_t posx, int32_t posy, bool visible, int32_t width, int32_t height);
 

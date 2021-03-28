@@ -22,7 +22,7 @@ typedef struct {
 
 /* --- Public Functions --- */
 // Return the destructor function for a button
-void (*GUI_Button_GetDestructor(void))(gui_button_t*);
+void (*GUI_Button_GetDestructor(void))(void*);
 
 // Create a new button
 gui_ret_t GUI_Button_New(

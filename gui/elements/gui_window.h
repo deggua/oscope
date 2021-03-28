@@ -22,7 +22,7 @@ typedef struct {
 /* --- Public Functions --- */
 gui_ret_t GUI_Window_New(gui_window_t* this, int32_t posx, int32_t posy, bool visible, int32_t width, int32_t height);
 
-void (*GUI_Window_GetDestructor(void))(gui_window_t*);
+void (*GUI_Window_GetDestructor(void))(void*);
 
 gui_ret_t GUI_Window_SetPosition(gui_window_t* this, int32_t posx, int32_t posy);
 
