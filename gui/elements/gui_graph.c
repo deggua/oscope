@@ -36,21 +36,23 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
 
     // draw x-axis division lines
     for (int32_t ii = 1; ii < GUI_GRAPH_DIVISIONS_X; ii++) {
-        SCR_DrawLine(
+        SCR_DrawVerticalDashedLine(
             origin.x + posGraph.x + ii * incXDivSpacing,
             origin.y + posGraph.y + 1,
-            origin.x + posGraph.x + ii * incXDivSpacing,
             origin.y + posGraph.y + dimGraph.h - 1,
+            1,
+            1,
             theme->subtle);
     }
 
     // draw y-axis division lines
     for (int32_t ii = 1; ii < GUI_GRAPH_DIVISIONS_Y; ii++) {
-        SCR_DrawLine(
+        SCR_DrawHorizontalDashedLine(
             origin.x + posGraph.x + 1,
-            origin.y + posGraph.y + ii * incYDivSpacing,
             origin.x + posGraph.x + dimGraph.w - 1,
             origin.y + posGraph.y + ii * incYDivSpacing,
+            1,
+            1,
             theme->subtle);
     }
 

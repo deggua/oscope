@@ -7,8 +7,8 @@
 #include <string.h>
 
 #include "display/color.h"
-#include "utils/geometry.h"
 #include "display/fonts/renew_font.h"
+#include "utils/geometry.h"
 
 screen_t screen = {.pix = {0}, .res.w = SCR_RES_WIDTH, .res.h = SCR_RES_HEIGHT};
 
@@ -357,4 +357,34 @@ void SCR_DrawChar(int32_t x0, int32_t y0, char cc, int32_t scale, color_t rgb) {
     }
 
     return;
+}
+
+void SCR_DrawHorizontalDashedLine(
+    int32_t x0,
+    int32_t x1,
+    int32_t y0,
+    int32_t dashed_len,
+    int32_t blank_len,
+    color_t rgb) {
+    int32_t lenTotal = dashed_len + blank_len;
+    for (int32_t xx = x0; xx <= x1; xx++) {
+        if (xx % lenTotal < dashed_len) {
+            SCR_DrawPixel(xx, y0, rgb);
+        }
+    }
+}
+
+void SCR_DrawVerticalDashedLine(
+    int32_t x0,
+    int32_t y0,
+    int32_t y1,
+    int32_t dashed_len,
+    int32_t blank_len,
+    color_t rgb) {
+    int32_t lenTotal = dashed_len + blank_len;
+    for (int32_t yy = y0; yy <= y1; yy++) {
+        if (yy % lenTotal < dashed_len) {
+            SCR_DrawPixel(x0, yy, rgb);
+        }
+    }
 }

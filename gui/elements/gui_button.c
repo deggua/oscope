@@ -21,20 +21,35 @@ static void Destructor(void* this) {
 }
 
 static void Render(void* this, gui_theme_t* theme, point_t origin) {
-    gui_button_t* thisButton;
+    gui_button_t* thisButton = this;
     point_t       posButton  = GUI_Button_GetPosition(thisButton);
     rect_t        dimButton  = GUI_Button_GetDimensions(thisButton);
     const char*   textButton = GUI_Button_GetText(thisButton);
+    size_t lenText = strlen(textButton);
+    int32_t widthText = lenText * FONT_WIDTH;
+    int32_t heightText = FONT_HEIGHT;
 
-    SCR_DrawRectangle(
-        origin.x + posButton.x,
-        origin.y + posButton.y,
-        origin.x + posButton.x + dimButton.w,
-        origin.y + posButton.y + dimButton.h,
-        false,
-        theme->border);
+    if (thisButton->_sel) {
+        SCR_DrawRectangle(
+            origin.x + posButton.x,
+            origin.y + posButton.y,
+            origin.x + posButton.x + dimButton.w,
+            origin.y + posButton.y + dimButton.h,
+            true,
+            theme->selected);
 
-    SCR_DrawString(origin.x + posButton.x, origin.y + posButton.y, textButton, 1, theme->text);
+        SCR_DrawString(origin.x + posButton.x + dimButton.w/2 - widthText/2 + 2, origin.y + posButton.y + dimButton.h/2 - heightText/2, textButton, 1, theme->selected_text);
+    } else {
+        SCR_DrawRectangle(
+            origin.x + posButton.x,
+            origin.y + posButton.y,
+            origin.x + posButton.x + dimButton.w,
+            origin.y + posButton.y + dimButton.h,
+            false,
+            theme->border);
+
+        SCR_DrawString(origin.x + posButton.x + dimButton.w/2 - widthText/2 + 2, origin.y + posButton.y + dimButton.h/2 - heightText/2, textButton, 1, theme->selected_text);
+    }
 
     return;
 }
@@ -72,6 +87,8 @@ gui_ret_t GUI_Button_New(
     if (ret != GUI_RET_SUCCESS) {
         return ret;
     }
+
+    this->_sel = false;
 
     // replace override functions
     ((gui_object_t*)this)->_Render = &Render;
@@ -115,7 +132,7 @@ gui_ret_t GUI_Button_SetText(gui_button_t* this, const char* text) {
         free(this->_text);
         this->_text = NULL;
     } else {
-        char* strNewText = malloc(strlen(text));
+        char* strNewText = calloc(1, strlen(text) + 1);
         if (strNewText == NULL) {
             return GUI_RET_FAILURE_NOMEM;
         }
@@ -131,4 +148,13 @@ gui_ret_t GUI_Button_SetText(gui_button_t* this, const char* text) {
 // Returns the text displayed on a button
 const char* GUI_Button_GetText(gui_button_t* this) {
     return this->_text;
+}
+
+bool GUI_Button_GetSelected(gui_button_t* this) {
+    return this->_sel;
+}
+
+gui_ret_t GUI_Button_SetSelected(gui_button_t* this, bool sel) {
+    this->_sel = sel;
+    return GUI_RET_SUCCESS;
 }

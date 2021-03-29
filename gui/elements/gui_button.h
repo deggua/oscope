@@ -53,4 +53,8 @@ gui_ret_t GUI_Button_SetText(gui_button_t* this, const char* text);
 // Returns the text displayed on a button
 const char* GUI_Button_GetText(gui_button_t* this);
 
+bool GUI_Button_GetSelected(gui_button_t* this);
+
+gui_ret_t GUI_Button_SetSelected(gui_button_t* this, bool sel);
+
 #endif

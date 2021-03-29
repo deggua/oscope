@@ -10,6 +10,8 @@ typedef struct {
     color_t subtle;
     color_t border;
     color_t text;
+    color_t selected;
+    color_t selected_text;
     color_t accents[GUI_NUM_ACCENTS];
 } gui_theme_t;
 
