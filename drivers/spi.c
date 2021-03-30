@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 
+#include "main.h"
 #include "stm32h7xx_hal_spi.h"
 #include "utils/scope.h"
 
@@ -14,7 +15,7 @@ void DRV_SPI_Init(SPI_HandleTypeDef* spi) {
     return;
 }
 
-spi_ret_t DRV_SPI_SetDacVoltage(SPI_HandleTypeDef* spi, scope_channel_t channel, float voltage) {
+spi_ret_t DRV_SPI_SetDacVoltage(scope_channel_t channel, float voltage) {
     if (g_isSpiInitialized == false) {
         return SPI_RET_UNINITIALIZED;
     }
@@ -44,13 +45,13 @@ spi_ret_t DRV_SPI_SetDacVoltage(SPI_HandleTypeDef* spi, scope_channel_t channel,
     cmd |= (1 << 12);
 
     HAL_GPIO_WritePin(CSn_DAC_GPIO_Port, CSn_DAC_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(spi, (uint8_t*)&cmd, 1, 100);
+    HAL_SPI_Transmit(g_spi, (uint8_t*)&cmd, 1, 100);
     HAL_GPIO_WritePin(CSn_DAC_GPIO_Port, CSn_DAC_Pin, GPIO_PIN_SET);
 
     return SPI_RET_SUCCESS;
 }
 
-spi_ret_t DRV_SPI_SetPgaChannel(SPI_HandleTypeDef* spi, scope_channel_t channel, pga_channel_t pregain) {
+spi_ret_t DRV_SPI_SetPgaChannel(scope_channel_t channel, pga_channel_t pregain) {
     if (g_isSpiInitialized == false) {
         return SPI_RET_UNINITIALIZED;
     }
@@ -67,18 +68,18 @@ spi_ret_t DRV_SPI_SetPgaChannel(SPI_HandleTypeDef* spi, scope_channel_t channel,
 
     if (channel == SCOPE_CH0) {
         HAL_GPIO_WritePin(CSn_CH0_GPIO_Port, CSn_CH0_Pin, GPIO_PIN_RESET);
-        HAL_SPI_Transmit(spi, (uint8_t*)&cmd, 1, 100);
+        HAL_SPI_Transmit(g_spi, (uint8_t*)&cmd, 1, 100);
         HAL_GPIO_WritePin(CSn_CH0_GPIO_Port, CSn_CH0_Pin, GPIO_PIN_SET);
     } else if (channel == SCOPE_CH1) {
         HAL_GPIO_WritePin(CSn_CH1_GPIO_Port, CSn_CH1_Pin, GPIO_PIN_RESET);
-        HAL_SPI_Transmit(spi, (uint8_t*)&cmd, 1, 100);
+        HAL_SPI_Transmit(g_spi, (uint8_t*)&cmd, 1, 100);
         HAL_GPIO_WritePin(CSn_CH1_GPIO_Port, CSn_CH1_Pin, GPIO_PIN_SET);
     }
 
     return SPI_RET_SUCCESS;
 }
 
-spi_ret_t DRV_SPI_SetPgaGain(SPI_HandleTypeDef* spi, scope_channel_t channel, pga_gain_t gain) {
+spi_ret_t DRV_SPI_SetPgaGain(scope_channel_t channel, pga_gain_t gain) {
     if (g_isSpiInitialized == false) {
         return SPI_RET_UNINITIALIZED;
     }
@@ -91,15 +92,13 @@ spi_ret_t DRV_SPI_SetPgaGain(SPI_HandleTypeDef* spi, scope_channel_t channel, pg
     // set gain register
     // set gain
 
-    // cmd = ((cmd & 0xFF) << 8) | ((cmd & 0xFF00) >> 8);
-
     if (channel == SCOPE_CH0) {
         HAL_GPIO_WritePin(CSn_CH0_GPIO_Port, CSn_CH0_Pin, GPIO_PIN_RESET);
-        HAL_SPI_Transmit(spi, (uint8_t*)&cmd, 1, 100);
+        HAL_SPI_Transmit(g_spi, (uint8_t*)&cmd, 1, 100);
         HAL_GPIO_WritePin(CSn_CH0_GPIO_Port, CSn_CH0_Pin, GPIO_PIN_SET);
     } else if (channel == SCOPE_CH1) {
         HAL_GPIO_WritePin(CSn_CH1_GPIO_Port, CSn_CH1_Pin, GPIO_PIN_RESET);
-        HAL_SPI_Transmit(spi, (uint8_t*)&cmd, 1, 100);
+        HAL_SPI_Transmit(g_spi, (uint8_t*)&cmd, 1, 100);
         HAL_GPIO_WritePin(CSn_CH1_GPIO_Port, CSn_CH1_Pin, GPIO_PIN_SET);
     }
 

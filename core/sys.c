@@ -11,14 +11,7 @@
 #include "gui/gui.h"
 #include "gui/gui_base.h"
 
-ADC_HandleTypeDef* g_adc_ch0;
-ADC_HandleTypeDef* g_adc_ch1;
-
-DAC_HandleTypeDef* g_dac_vcal;
-
-SPI_HandleTypeDef* g_spi;
-
-TIM_HandleTypeDef *g_pwm, *g_tick;
+TIM_HandleTypeDef* g_tick;
 
 gui_waveform_t *g_waveCH0, *g_waveCH1;
 gui_graph_t*    g_guiGraph;
@@ -66,27 +59,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
     }
 }
 
-void CORE_Sys_Init(
-    ADC_HandleTypeDef* adc_ch0,
-    ADC_HandleTypeDef* adc_ch1,
-    DAC_HandleTypeDef* dac_vcal,
-    SPI_HandleTypeDef* spi,
-    TIM_HandleTypeDef* pwm,
-    TIM_HandleTypeDef* tick) {
+void CORE_Sys_Init(TIM_HandleTypeDef* tick) {
     // save pointers
-    g_adc_ch0  = adc_ch0;
-    g_adc_ch1  = adc_ch1;
-    g_dac_vcal = dac_vcal;
-    g_spi      = spi;
-    g_pwm      = pwm;
-    g_tick     = tick;
-
-    // start backlight pwm
-    HAL_TIM_Base_Start(g_pwm);
-    HAL_TIM_PWM_Start(g_pwm, TIM_CHANNEL_1);
-
-    // initialize the calibration dac
-    HAL_DAC_Start(g_dac_vcal, DAC_CHANNEL_2);
+    g_tick = tick;
 
     // initialize ticker and interrupt
     HAL_TIM_Base_Start_IT(g_tick);

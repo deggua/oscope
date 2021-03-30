@@ -4,8 +4,6 @@
 #include "stm32h7xx_hal_spi.h"
 #include "utils/scope.h"
 
-extern SPI_HandleTypeDef* g_spi;
-
 typedef enum { PGA_CH_1X = 0, PGA_CH_12X = 1 } pga_channel_t;
 
 typedef enum { SPI_RET_SUCCESS, SPI_RET_UNINITIALIZED } spi_ret_t;
@@ -21,11 +19,11 @@ typedef enum {
     PGA_GAIN_32X = 0b111
 } pga_gain_t;
 
-void DRV_SPI_SetDacVoltage(SPI_HandleTypeDef* spi, scope_channel_t channel, float voltage);
+void DRV_SPI_SetDacVoltage(scope_channel_t channel, float voltage);
 
-void DRV_SPI_SetPgaChannel(SPI_HandleTypeDef* spi, scope_channel_t channel, pga_channel_t pregain);
+void DRV_SPI_SetPgaChannel(scope_channel_t channel, pga_channel_t pregain);
 
-void DRV_SPI_SetPgaGain(SPI_HandleTypeDef* spi, scope_channel_t channel, pga_gain_t gain);
+void DRV_SPI_SetPgaGain(scope_channel_t channel, pga_gain_t gain);
 
 void DRV_SPI_Init(SPI_HandleTypeDef* spi);
 
