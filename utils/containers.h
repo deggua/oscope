@@ -1,16 +1,18 @@
 #ifndef CONTAINERS_H
 #define CONTAINERS_H
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
+
+#define lengthof(x) (sizeof(x) / sizeof(x[0]))
 
 typedef struct {
     size_t len;
-    void* vals[];
+    void*  vals[];
 } array_t;
 
-typedef struct LINKEDLIST_T{
-    void* val;
+typedef struct LINKEDLIST_T {
+    void*                val;
     struct LINKEDLIST_T* next;
     struct LINKEDLIST_T* prev;
 } linkedlist_t;
@@ -20,8 +22,6 @@ array_t* Array_New(size_t len, size_t type_size);
 array_t* Array_Resize(array_t* list, size_t len, size_t type_size);
 
 void Array_Delete(array_t* list);
-
-
 
 // Allocates a new linkedlist node
 // Returns: the newly allocated node or NULL
@@ -70,6 +70,5 @@ linkedlist_t* LinkedList_HeadOf(linkedlist_t* list);
 // Returns: the tail node
 // WARNING: Calling this on a node in a cyclically linked list will cause an infinite loop
 linkedlist_t* LinkedList_TailOf(linkedlist_t* list);
-
 
 #endif

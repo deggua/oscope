@@ -1,25 +1,27 @@
+#include "utils/containers.h"
+
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stddef.h>
-
-#include "utils/containers.h"
+#include <string.h>
 
 array_t* Array_New(size_t len, size_t type_size) {
     array_t* array = calloc(1, sizeof(array_t) + type_size * len);
-    array->len = len;
+    array->len     = len;
     return array;
 }
 
-array_t* Array_Resize(array_t* list, size_t len, size_t type_size) {
-    free(list);
-    return Array_New(len, type_size);
+array_t* Array_Resize(array_t* arr, size_t len, size_t type_size) {
+    array_t* arrNew = Array_New(len, type_size);
+    memcpy(arrNew->vals, arr->vals, len * type_size);
+    free(arr);
+    return arrNew;
 }
 
-void Array_Delete(array_t* list) {
-    free(list);
+void Array_Delete(array_t* arr) {
+    free(arr);
     return;
 }
-
 
 // Allocates a new linkedlist node
 // Returns: the newly allocated node or NULL
@@ -96,12 +98,12 @@ linkedlist_t* LinkedList_RemoveNode(linkedlist_t* node) {
 
     if (next != NULL) {
         next->prev = prev;
-        list = next;
+        list       = next;
     }
 
     if (prev != NULL) {
         prev->next = next;
-        list = prev;
+        list       = prev;
     }
 
     node->next = NULL;
@@ -122,11 +124,11 @@ void LinkedList_DeleteList(linkedlist_t* list) {
 
     if (node_prev != NULL) {
         node_prev->next = NULL;
-        list->prev = NULL;
+        list->prev      = NULL;
 
         // then delete the previous portion of the list
         linkedlist_t *prev, *sel;
-        sel = node_prev;
+        sel  = node_prev;
         prev = node_prev->prev;
 
         while (sel != NULL) {
@@ -142,7 +144,7 @@ void LinkedList_DeleteList(linkedlist_t* list) {
 
     // delete the node and everything after
     linkedlist_t *next, *sel;
-    sel = list;
+    sel  = list;
     next = list->next;
 
     while (sel != NULL) {
@@ -190,10 +192,10 @@ linkedlist_t* LinkedList_MoveToTail(linkedlist_t* node) {
 linkedlist_t* LinkedList_HeadOf(linkedlist_t* list) {
     linkedlist_t *sel, *prev;
     prev = list->prev;
-    sel = list;
+    sel  = list;
 
     while (prev != NULL) {
-        sel = prev;
+        sel  = prev;
         prev = prev->prev;
     }
 
@@ -206,10 +208,10 @@ linkedlist_t* LinkedList_HeadOf(linkedlist_t* list) {
 linkedlist_t* LinkedList_TailOf(linkedlist_t* list) {
     linkedlist_t *sel, *next;
     next = list->next;
-    sel = list;
+    sel  = list;
 
     while (next != NULL) {
-        sel = next;
+        sel  = next;
         next = next->next;
     }
 

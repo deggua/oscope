@@ -3,11 +3,13 @@
 
 #include <stdint.h>
 
+#include "config.h"
 #include "gui/gui_base.h"
 #include "utils/containers.h"
 #include "utils/geometry.h"
 #include "utils/numeric.h"
 #include "utils/scope.h"
+
 
 #define GUI_GRAPH_NUM_WAVEFORMS 2UL
 
@@ -19,7 +21,7 @@
 #define GUI_GRAPH_DIVISIONS_X 10
 #define GUI_GRAPH_DIVISIONS_Y 10
 
-#define GUI_WAVEFORM_NUM_POINTS 64UL
+#define GUI_WAVEFORM_NUM_POINTS ADC_SAMPLES_PER_WAVEFORM
 
 typedef size_t gui_cursor_index_t;
 
