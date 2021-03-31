@@ -6,6 +6,7 @@
         "gui_label.h": "c",
         "scope.h": "c",
         "display.h": "c",
-        "gui_base.h": "c"
+        "gui_base.h": "c",
+        "control.h": "c"
     }
 }

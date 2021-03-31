@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 
+#include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_dac.h"
 
 DAC_HandleTypeDef* g_dac;

@@ -3,8 +3,10 @@
 #include <stdbool.h>
 
 #include "main.h"
+#include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_spi.h"
 #include "utils/scope.h"
+
 
 SPI_HandleTypeDef* g_spi;
 bool               g_isSpiInitialized = false;

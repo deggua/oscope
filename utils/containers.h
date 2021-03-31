@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define lengthof(x) (sizeof(x) / sizeof(x[0]))
-
 typedef struct {
     size_t len;
     void*  vals[];

@@ -1,5 +1,7 @@
 #include "core/sys.h"
 
+#include <stdbool.h>
+
 #include "display/display.h"
 #include "drivers/adc.h"
 #include "drivers/dac.h"
@@ -10,6 +12,7 @@
 #include "gui/elements/gui_window.h"
 #include "gui/gui.h"
 #include "gui/gui_base.h"
+#include "processing/control.h"
 
 TIM_HandleTypeDef* g_tick;
 
@@ -48,18 +51,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
         g_tickSampleControls++;
         g_tickProcessControls++;
         g_tickUpdateWaveforms++;
-        g_tickADCPrescaler++;
+        g_tickSampleADC++;
 
         if (g_tickSampleADC > g_tickSampleADCPrescaler) {
             g_tickSampleADC = 0;
 
-            g_voltADCSamplesCH0[g_indexADCSamplesCH0] = DRV_ADC_ReadVoltage(g_adc_ch0);
+            g_voltADCSamplesCH0[g_indexADCSamplesCH0] = PROC_SampleVoltage(SCOPE_CH0);
             g_indexADCSamplesCH0                      = (g_indexADCSamplesCH0 + 1) % lengthof(g_voltADCSamplesCH0);
         }
     }
 }
 
-void CORE_Sys_Init(TIM_HandleTypeDef* tick) {
+void CORE_Sys_Init(TIM_HandleTypeDef* tick, IRQn_Type irq) {
     // save pointers
     g_tick = tick;
 
@@ -84,9 +87,9 @@ void CORE_Sys_Run(void) {
     const uint32_t tickUpdateWaveformsPeriod = 0;
 
     while (1) {
-        if (tickRender > tickRenderPeriod) {
+        if (g_tickRender > tickRenderPeriod) {
             // GUI_Object_Render((gui_object_t*)guiWindRoot, &theme, (point_t){.x = 0, .y = 0});
-            tickRender = 0;
+            g_tickRender = 0;
         }
     }
 }
@@ -96,15 +99,6 @@ static void CORE_FrontEnd_Init(void) {
     scope_channel_t channel = SCOPE_CH0;
     pga_gain_t      gain    = PGA_GAIN_1X;
     pga_channel_t   pregain = PGA_CH_1X;
-
-    DRV_SPI_SetDacVoltage(g_spi, channel, offset);
-    DRV_SPI_SetPgaChannel(g_spi, channel, pregain);
-    DRV_SPI_SetPgaGain(g_spi, channel, gain);
-
-    channel = SCOPE_CH1;
-    DRV_SPI_SetDacVoltage(g_spi, channel, offset);
-    DRV_SPI_SetPgaChannel(g_spi, channel, pregain);
-    DRV_SPI_SetPgaGain(g_spi, channel, gain);
 }
 
 static gui_ret_t CORE_GUI_Init(void) {

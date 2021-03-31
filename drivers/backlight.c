@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "main.h"
+#include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_tim.h"
 
 TIM_HandleTypeDef* g_pwm;
@@ -36,7 +38,7 @@ backlight_ret_t DRV_Backlight_SetBrightness(float norm_brightness) {
     HAL_TIM_Base_Stop(g_pwm);
     HAL_TIM_PWM_Stop(g_pwm, g_timChannel);
 
-    uint32_t           dutyCycle = norm_brightness * g_timPeriod;
+    uint32_t           dutyCycle = (uint32_t)(norm_brightness * (float)g_timPeriod);
     TIM_OC_InitTypeDef sConfigOC = {0};
 
     sConfigOC.OCMode     = TIM_OCMODE_PWM1;

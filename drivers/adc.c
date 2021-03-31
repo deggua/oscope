@@ -1,7 +1,9 @@
 #include "drivers/adc.h"
 
 #include <math.h>
+#include <stdbool.h>
 
+#include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_adc.h"
 #include "utils/scope.h"
 
@@ -20,17 +22,19 @@ float DRV_ADC_ReadVoltage(scope_channel_t channel) {
         return NAN;
     }
 
-    uint32_t voltBits = HAL_ADC_GetValue(adc);
+    uint32_t voltBits;
     if (channel == SCOPE_CH0) {
+    	voltBits = HAL_ADC_GetValue(g_adcCH0);
         HAL_ADC_Start(g_adcCH0);
         HAL_ADC_PollForConversion(g_adcCH0, HAL_MAX_DELAY);
         voltBits = HAL_ADC_GetValue(g_adcCH0);
     } else if (channel == SCOPE_CH1) {
+    	voltBits = HAL_ADC_GetValue(g_adcCH1);
         HAL_ADC_Start(g_adcCH1);
         HAL_ADC_PollForConversion(g_adcCH1, HAL_MAX_DELAY);
         voltBits = HAL_ADC_GetValue(g_adcCH1);
     }
 
-    float voltMeasured = 3.28f * voltBits / 255.0f;
+    float voltMeasured = SCOPE_VREF * (float)voltBits / 255.0f;
     return voltMeasured;
 }

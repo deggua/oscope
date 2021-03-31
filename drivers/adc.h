@@ -1,6 +1,7 @@
 #ifndef ADC_H
 #define ADC_H
 
+#include "stm32h7xx_hal.h"
 #include "stm32h7xx_hal_adc.h"
 #include "utils/scope.h"
 
