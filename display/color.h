@@ -25,8 +25,17 @@ typedef union {
 
 typedef rgb888_t color_t;
 
-extern const color_t color_white, color_black, color_red, color_green, color_blue, color_purple, color_orange, color_yellow,
-    color_cyan, color_magenta, color_gray;
+#define color_white   ((color_t){.r = 255, .g = 255, .b = 255})
+#define color_black   ((color_t){.r = 0, .g = 0, .b = 0})
+#define color_red     ((color_t){.r = 255, .g = 0, .b = 0})
+#define color_green   ((color_t){.r = 0, .g = 255, .b = 0})
+#define color_blue    ((color_t){.r = 0, .g = 0, .b = 255})
+#define color_purple  ((color_t){.r = 255, .g = 0, .b = 255})
+#define color_orange  ((color_t){.r = 255, .g = 255, .b = 0})
+#define color_yellow  ((color_t){.r = 255, .g = 128, .b = 0})
+#define color_cyan    ((color_t){.r = 0, .g = 128, .b = 255})
+#define color_magenta ((color_t){.r = 255, .g = 0, .b = 128})
+#define color_gray    ((color_t){.r = 64, .g = 64, .b = 64})
 
 rgb888_t RGB888(rgb565_t rgb);
 

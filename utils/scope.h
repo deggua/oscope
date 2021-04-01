@@ -14,4 +14,17 @@ typedef struct {
     edge_t edge;
 } trigger_t;
 
+typedef enum {
+    ROT_HORIZONTAL_SCALE,
+    ROT_HORIZONTAL_SCALE_FINE,
+    ROT_VERTICAL_SCALE,
+    ROT_VERTICAL_SCALE_FINE,
+    ROT_OFFSET_VOLTAGE,
+    ROT_OFFSET_VOLTAGE_FINE,
+    ROT_TRIGGER_VOLTAGE,
+    ROT_TRIGGER_VOLTAGE_FINE,
+    ROT_LAST_NORM,
+    ROT_CURSOR,
+    ROT_CURSOR_FINE
+} scope_rot_t;
 #endif

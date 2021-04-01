@@ -48,7 +48,7 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
             false,
             theme->border);
 
-        SCR_DrawString(origin.x + posButton.x + dimButton.w/2 - widthText/2 + 2, origin.y + posButton.y + dimButton.h/2 - heightText/2, textButton, 1, theme->selected_text);
+        SCR_DrawString(origin.x + posButton.x + dimButton.w/2 - widthText/2 + 2, origin.y + posButton.y + dimButton.h/2 - heightText/2, textButton, 1, theme->text);
     }
 
     return;

@@ -196,8 +196,8 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         offsetY0 = thisGraph->_waveforms[0].samples[ii] - thisGraph->_waveforms[0].y.lower;
         offsetY1 = thisGraph->_waveforms[0].samples[ii + 1] - thisGraph->_waveforms[0].y.lower;
 
-        float posNormY0 = offsetY0 / spanVerticalCH1;
-        float posNormY1 = offsetY1 / spanVerticalCH1;
+        float posNormY0 = offsetY0 / spanVerticalCH0;
+        float posNormY1 = offsetY1 / spanVerticalCH0;
 
         int32_t posY0 = dimGraph.h * (1.0f - posNormY0);
         int32_t posY1 = dimGraph.h * (1.0f - posNormY1);

@@ -12,9 +12,40 @@ float amplification[16] =
     {1.0f, 2.0f, 4.0f, 5.0f, 8.0f, 10.0f, 12.0f, 16.0f, 24.0f, 32.0f, 48.0f, 60.0f, 96.0f, 120.0f, 192.0f, 384.0f};
 
 calibration_t cal_vals = {
-		.offset = {2.89411783f, 1.3184315f, 0.530588329f, 0.373019576f, 0.136666596f, 0.0450195372f, 0.00535935163f, -0.0522548705f, -0.179542482f, -0.259264708f, -0.314869285f, -0.251895428f, -0.154754907f, -0.122732013f, -0.0740277842f, -0.0339991823f},
-		.scalar = {0.903998733f, 0.903998852f, 0.905754149f, 0.899516225f, 0.905754268f, 0.902384579f, 0.901378512f, 0.888501704f, 0.888501704f, 1.15176165f, 1.08165443f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f }
-};
+    .offset =
+        {2.89411783f,
+         1.3184315f,
+         0.530588329f,
+         0.373019576f,
+         0.136666596f,
+         0.0450195372f,
+         0.00535935163f,
+         -0.0522548705f,
+         -0.179542482f,
+         -0.259264708f,
+         -0.314869285f,
+         -0.251895428f,
+         -0.154754907f,
+         -0.122732013f,
+         -0.0740277842f,
+         -0.0339991823f},
+    .scalar = {
+        0.903998733f,
+        0.903998852f,
+        0.905754149f,
+        0.899516225f,
+        0.905754268f,
+        0.902384579f,
+        0.901378512f,
+        0.888501704f,
+        0.888501704f,
+        1.15176165f,
+        1.08165443f,
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f}};
 
 frontend_state_t CH0 = {0}, CH1 = {0};
 
@@ -155,21 +186,21 @@ void PROC_SetSpan(scope_channel_t channel, float volt_span) {
 }
 
 float PROC_SampleVoltage(scope_channel_t channel) {
-    float voltADC = DRV_ADC_ReadVoltage(channel);
-    float voltOffset, voltAmplification, voltAttenuation;
+    float           voltADC = DRV_ADC_ReadVoltage(channel);
+    float           voltOffset, voltAmplification, voltAttenuation;
     amplification_t ampSel;
-	attenuation_t attenSel;
+    attenuation_t   attenSel;
     if (channel == SCOPE_CH0) {
         voltOffset        = CH0.offset;
         voltAmplification = amplification[CH0.amplification];
-        ampSel = CH0.amplification;
-        attenSel = CH0.attenuation;
+        ampSel            = CH0.amplification;
+        attenSel          = CH0.attenuation;
         voltAttenuation   = attenuation[CH0.attenuation];
     } else if (channel == SCOPE_CH1) {
         voltOffset        = CH1.offset;
         voltAmplification = amplification[CH1.amplification];
-        ampSel = CH0.amplification;
-        attenSel = CH0.attenuation;
+        ampSel            = CH0.amplification;
+        attenSel          = CH0.attenuation;
         voltAttenuation   = attenuation[CH1.attenuation];
     }
 
@@ -179,22 +210,22 @@ float PROC_SampleVoltage(scope_channel_t channel) {
 
 float PROC_SampleVoltageCalibrated(scope_channel_t channel) {
     amplification_t ampSel;
-	attenuation_t attenSel;
+    attenuation_t   attenSel;
 
-	if (channel == SCOPE_CH0) {
-		ampSel = CH0.amplification;
-		attenSel = CH0.attenuation;
-	} else if (channel == SCOPE_CH1) {
-		ampSel = CH1.amplification;
-		attenSel = CH1.attenuation;
-	}
+    if (channel == SCOPE_CH0) {
+        ampSel   = CH0.amplification;
+        attenSel = CH0.attenuation;
+    } else if (channel == SCOPE_CH1) {
+        ampSel   = CH1.amplification;
+        attenSel = CH1.attenuation;
+    }
 
-	float voltMeasured = PROC_SampleVoltage(channel);
+    float voltMeasured = PROC_SampleVoltage(channel);
 
-	float attenFactor = 1.0f;
-	if (attenSel == ATTENUATION_X1) {
-		attenFactor = 10.0f;
-	}
+    float attenFactor = 1.0f;
+    if (attenSel == ATTENUATION_X1) {
+        attenFactor = 10.0f;
+    }
     float voltCal = cal_vals.scalar[ampSel] * (voltMeasured + attenFactor * cal_vals.offset[ampSel]);
     return voltCal;
 }
