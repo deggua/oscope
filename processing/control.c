@@ -144,13 +144,13 @@ static amplification_t PROC_CalcIdealGain(attenuation_t probe, float volt_span) 
     float desiredSpan = volt_span;
 
     defaultSpan = defaultSpan * attenuation[probe];
-    for (int ii = 0; ii < lengthof(amplification); ii++) {
+    for (int ii = 0; ii < 7; ii++) {
         if (defaultSpan / amplification[ii] <= desiredSpan) {
             return (amplification_t)ii;
         }
     }
 
-    return AMPLIFICATION_384X;
+    return AMPLIFICATION_12X;
 }
 
 static float PROC_CalcCenterOffset(amplification_t gain) {

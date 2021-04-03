@@ -20,7 +20,7 @@ static void Destructor(void* this) {
 }
 
 static void Render(void* this, gui_theme_t* theme, point_t origin) {
-    gui_label_t* thisLabel;
+    gui_label_t* thisLabel = this;
     point_t      posLabel   = GUI_Label_GetPosition(thisLabel);
     int32_t      scaleLabel = GUI_Label_GetScale(thisLabel);
     const char*  textLabel  = GUI_Label_GetText(thisLabel);
