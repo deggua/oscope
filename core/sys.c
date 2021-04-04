@@ -66,6 +66,7 @@ volatile size_t      g_lenADCAfterTriggerCH0  = 0;
 volatile size_t      g_lenADCBeforeTriggerCH0 = 0;
 volatile adc_state_t g_stateCH0               = ADC_RUNNING;
 volatile trigger_t   g_triggerCH0             = {.edge = EDGE_RISING, .threshold = 0.0f};
+volatile scope_rot_t g_activityRotCH0         = ROT_HORIZONTAL_SCALE;
 
 // CH1 globals
 volatile float       g_voltADCSamplesCH1[ADC_SAMPLES_PER_WAVEFORM];
@@ -74,6 +75,7 @@ volatile size_t      g_lenADCBeforeTriggerCH1 = 0;
 volatile size_t      g_lenADCAfterTriggerCH1  = 0;
 volatile adc_state_t g_stateCH1               = ADC_RUNNING;
 volatile trigger_t   g_triggerCH1             = {.edge = EDGE_RISING, .threshold = 0.0f};
+volatile scope_rot_t g_activityRotCH1         = ROT_HORIZONTAL_SCALE;
 
 static void      CORE_FrontEnd_Init(void);
 static gui_ret_t CORE_GUI_Init(void);
@@ -355,12 +357,10 @@ void CORE_Sys_Run(void) {
     rot_state_t curRotStateCH0    = {0};
     rot_state_t prevRotStateCH0   = {0};
     bool        isRotCH0Processed = true;
-    scope_rot_t activityRotCH0    = ROT_HORIZONTAL_SCALE;
 
     rot_state_t curRotStateCH1    = {0};
     rot_state_t prevRotStateCH1   = {0};
     bool        isRotCH1Processed = true;
-    scope_rot_t activityRotCH1    = ROT_HORIZONTAL_SCALE;
 
     float spanVertCH0   = 10.0f;
     float offsetVertCH0 = 0.0f;
@@ -432,7 +432,7 @@ void CORE_Sys_Run(void) {
 
             // rot CH0 actions
             if (!isRotCH0Processed) {
-                if (activityRotCH0 == ROT_HORIZONTAL_SCALE) {
+                if (g_activityRotCH0 == ROT_HORIZONTAL_SCALE) {
                     // coarse horizontal adjustment of CH0
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         g_tickSampleADCPrescaler =
@@ -449,7 +449,7 @@ void CORE_Sys_Run(void) {
                         g_waveCH0->x.upper = newRange.upper;
                     }
 
-                } else if (activityRotCH0 == ROT_HORIZONTAL_SCALE_FINE) {
+                } else if (g_activityRotCH0 == ROT_HORIZONTAL_SCALE_FINE) {
                     // fine horizontal adjustment of CH0
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         g_tickSampleADCPrescaler =
@@ -466,7 +466,7 @@ void CORE_Sys_Run(void) {
                         g_waveCH0->x.upper = newRange.upper;
                     }
 
-                } else if (activityRotCH0 == ROT_VERTICAL_SCALE) {
+                } else if (g_activityRotCH0 == ROT_VERTICAL_SCALE) {
                     // coarse vertical adjustment of CH0
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         spanVertCH0 =
@@ -489,7 +489,7 @@ void CORE_Sys_Run(void) {
                         PROC_SetOffset(SCOPE_CH0, offsetVertCH0);
                     }
 
-                } else if (activityRotCH0 == ROT_VERTICAL_SCALE_FINE) {
+                } else if (g_activityRotCH0 == ROT_VERTICAL_SCALE_FINE) {
                     // fine vertical adjustment of CH0
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         spanVertCH0 = AddWithinMaximum_float(spanVertCH0, VERTICAL_SCALE_STEP_FINE, VERTICAL_SPAN_MAX);
@@ -510,7 +510,7 @@ void CORE_Sys_Run(void) {
                         PROC_SetOffset(SCOPE_CH0, offsetVertCH0);
                     }
 
-                } else if (activityRotCH0 == ROT_OFFSET_VOLTAGE) {
+                } else if (g_activityRotCH0 == ROT_OFFSET_VOLTAGE) {
                     // coarse adjustment of offset voltage of CH0
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         offsetVertCH0 = AddWithinMaximum_float(offsetVertCH0, OFFSET_STEP_COARSE, OFFSET_MAX);
@@ -531,7 +531,7 @@ void CORE_Sys_Run(void) {
                         PROC_SetOffset(SCOPE_CH0, offsetVertCH0);
                     }
 
-                } else if (activityRotCH0 == ROT_OFFSET_VOLTAGE_FINE) {
+                } else if (g_activityRotCH0 == ROT_OFFSET_VOLTAGE_FINE) {
                     // fine adjustment of offset voltage of CH0
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         offsetVertCH0 = AddWithinMaximum_float(offsetVertCH0, OFFSET_STEP_FINE, OFFSET_MAX);
@@ -552,7 +552,7 @@ void CORE_Sys_Run(void) {
                         PROC_SetOffset(SCOPE_CH0, offsetVertCH0);
                     }
 
-                } else if (activityRotCH0 == ROT_TRIGGER_VOLTAGE) {
+                } else if (g_activityRotCH0 == ROT_TRIGGER_VOLTAGE) {
                     // coarse adjustment of trigger voltage
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         g_triggerCH0.threshold =
@@ -565,7 +565,7 @@ void CORE_Sys_Run(void) {
                         g_waveCH0->trigger = g_triggerCH0.threshold;
                     }
 
-                } else if (activityRotCH0 == ROT_TRIGGER_VOLTAGE_FINE) {
+                } else if (g_activityRotCH0 == ROT_TRIGGER_VOLTAGE_FINE) {
                     // fine adjustment of trigger voltage
                     if (curRotStateCH0.dir == ROT_DIR_CW && prevRotStateCH0.dir == ROT_DIR_NONE) {
                         g_triggerCH0.threshold =
@@ -577,7 +577,7 @@ void CORE_Sys_Run(void) {
                             SubWithinMinimum_float(g_triggerCH0.threshold, TRIGGER_STEP_FINE, TRIGGER_MIN);
                         g_waveCH0->trigger = g_triggerCH0.threshold;
                     }
-                } else if (activityRotCH0 == ROT_CURSOR) {
+                } else if (g_activityRotCH0 == ROT_CURSOR) {
                     // adjustment of cursor position
                     float spanTime   = g_waveCH0->x.upper - g_waveCH0->x.lower;
                     float stepCursor = spanTime / CURSOR_POSITIONS;
@@ -591,16 +591,16 @@ void CORE_Sys_Run(void) {
                     }
                 }
 
-                if (activityRotCH0 != ROT_CURSOR) {
-                    if (curRotStateCH0.pressed && !prevRotStateCH0.pressed) {
+                if (curRotStateCH0.pressed && !prevRotStateCH0.pressed) {
+                    if (g_activityRotCH0 != ROT_CURSOR) {
                         // go to next rot state
-                        activityRotCH0 = (activityRotCH0 + 1) % ROT_LAST_NORM;
-                        UpdateChannelLabel(g_guiLabelCH0, SCOPE_CH0, activityRotCH0);
+                        g_activityRotCH0 = (g_activityRotCH0 + 1) % ROT_LAST_NORM;
+                    } else if (g_activityRotCH0 == ROT_CURSOR) {
+                        // exit place cursor state
+                        g_activityRotCH0 = ROT_HORIZONTAL_SCALE;
                     }
 
-                } else if (activityRotCH0 == ROT_CURSOR) {
-                    // exit place cursor state
-                    activityRotCH0 = ROT_HORIZONTAL_SCALE;
+                    UpdateChannelLabel(g_guiLabelCH0, SCOPE_CH0, g_activityRotCH0);
                 }
 
                 isRotCH0Processed = true;
@@ -713,11 +713,12 @@ static gui_ret_t CORE_GUI_Init(void) {
     // create and add the CH0 label
     point_t      pos_guiLabelCH0 = {.x = screen.res.w - 1 - 18 * FONT_WIDTH, .y = pos_guiWindRoot.y + 4};
     gui_label_t* guiLabelCH0     = calloc(1, sizeof(gui_label_t));
-    ret = GUI_Label_New(guiLabelCH0, pos_guiLabelCH0.x, pos_guiLabelCH0.y, true, "CH0: HORIZ", 1);
+    ret = GUI_Label_New(guiLabelCH0, pos_guiLabelCH0.x, pos_guiLabelCH0.y, true, "CH0: NOT SET", 1);
     if (ret != GUI_RET_SUCCESS) {
         return ret;
     }
     g_guiLabelCH0 = guiLabelCH0;
+    UpdateChannelLabel(g_guiLabelCH0, SCOPE_CH0, g_activityRotCH0);
 
     // add the CH0 label to the root window
     ret = GUI_Object_Add((gui_object_t*)guiLabelCH0, (gui_object_t*)guiWindRoot);
@@ -766,7 +767,11 @@ void Callback_Cursor(void) {
     static size_t        idxCursor  = 0;
 
     if (idxCursor < lengthof(cursors)) {
-        cursors[idxCursor++] = GUI_Graph_AddCursor(g_guiGraph, 0.0f);
+        linkedlist_t* cursor = GUI_Graph_AddCursor(g_guiGraph, 0.0f);
+        cursors[idxCursor++] = cursor;
+        g_guiCursorSel       = (gui_cursor_t*)(cursor->val);
+        g_activityRotCH0     = ROT_CURSOR;
+        UpdateChannelLabel(g_guiLabelCH0, SCOPE_CH0, g_activityRotCH0);
     } else {
         idxCursor = 0;
         for (int32_t ii = 0; ii < lengthof(cursors); ii++) {

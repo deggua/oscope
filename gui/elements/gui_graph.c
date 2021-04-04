@@ -25,7 +25,7 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
 
     const int32_t spaceText = 1;
     const int32_t scaleText = 1;
-    char          bufTemp[8];
+    char          bufTemp[16];
 
     // draw border
     SCR_DrawRectangle(
@@ -73,17 +73,16 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
     }
 
     // draw division x-labels for time
-    float time = thisGraph->_waveforms[0].x.lower;
-    // calculate ideal time units
-    unit_t unitTime   = Units_CalcIdealUnits(time);
-    char*  prefixTime = Units_GetUnitPrefix(unitTime);
-    float  multTime   = Units_GetUnitMultiplier(unitTime);
-    float  incXDivTime =
-        multTime * (thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower) / GUI_GRAPH_DIVISIONS_X;
-    time *= multTime;
+    float  incXDivTime = (thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower) / GUI_GRAPH_DIVISIONS_X;
+    unit_t unitTime    = Units_CalcIdealUnits(incXDivTime);
+    char*  prefixTime  = Units_GetUnitPrefix(unitTime);
+    float  multTime    = Units_GetUnitMultiplier(unitTime);
+
+    float time = multTime * thisGraph->_waveforms[0].x.lower;
+    incXDivTime *= multTime;
 
     for (int32_t ii = 0; ii <= GUI_GRAPH_DIVISIONS_X; ii++) {
-        snprintf(bufTemp, sizeof(bufTemp), "%4.0f %ss", time, prefixTime);
+        snprintf(bufTemp, sizeof(bufTemp), "%6.1f %ss", time, prefixTime);
         time += incXDivTime;
 
         int32_t heightLabel = origin.y + posGraph.y + dimGraph.h + 5 * spaceText;
@@ -131,31 +130,6 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
             bufTemp,
             scaleText,
             theme->accents[1]);
-    }
-
-    // draw cursors
-    if (thisGraph->_cursors != NULL) {
-        linkedlist_t* cursorSel = LinkedList_HeadOf(thisGraph->_cursors);
-        while (cursorSel != NULL) {
-            float adjCursor = ((gui_cursor_t*)(cursorSel->val))->pos;
-            if (adjCursor > thisGraph->_waveforms[0].x.upper) {
-                adjCursor = thisGraph->_waveforms[0].x.upper;
-            } else if (adjCursor < thisGraph->_waveforms[0].x.lower) {
-                adjCursor = thisGraph->_waveforms[0].x.lower;
-            }
-
-            float posXNorm = (adjCursor - thisGraph->_waveforms[0].x.lower) /
-                             (thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower);
-            int32_t posXCursor = (int32_t)(dimGraph.w * posXNorm);
-            SCR_DrawLine(
-                origin.x + posGraph.x + posXCursor,
-                origin.y + posGraph.y + 1,
-                origin.x + posGraph.x + posXCursor,
-                origin.y + posGraph.y + dimGraph.h - 1,
-                theme->accents[2]);
-
-            cursorSel = cursorSel->next;
-        }
     }
 
     // draw waveform for CH1
@@ -247,8 +221,9 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         float spanTime = thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower;
 
         while (nodeCursorSel != NULL) {
-            float   normPosCursor = (((gui_cursor_t*)(nodeCursorSel->val))->pos - thisGraph->_waveforms[0].x.lower) / spanTime;
-            int32_t posCursor     = normPosCursor * dimGraph.w;
+            float normPosCursor =
+                (((gui_cursor_t*)(nodeCursorSel->val))->pos - thisGraph->_waveforms[0].x.lower) / spanTime;
+            int32_t posCursor = normPosCursor * dimGraph.w;
 
             if (posCursor < 1) {
                 posCursor = 1;
@@ -261,7 +236,7 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
                 origin.y + posGraph.y + 1,
                 origin.x + posGraph.x + posCursor,
                 origin.y + posGraph.y + dimGraph.h - 1,
-                theme->accents[3]);
+                theme->accents[2]);
 
             nodeCursorSel = nodeCursorSel->next;
         }
@@ -276,15 +251,21 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
             spanVertical = spanVerticalCH1;
         }
 
-        float   normTrigCenterY = 1 - ((thisGraph->_waveforms[ii].trigger - thisGraph->_waveforms[ii].y.lower) / spanVertical);
-        int32_t posTrigCenterY  = normTrigCenterY * dimGraph.h;
-        int32_t posTrigUpperY   = posTrigCenterY - 4;
-        int32_t posTrigLowerY   = posTrigCenterY + 4;
+        float normTrigCenterY =
+            1 - ((thisGraph->_waveforms[ii].trigger - thisGraph->_waveforms[ii].y.lower) / spanVertical);
+        int32_t posTrigCenterY = normTrigCenterY * dimGraph.h;
+        if (posTrigCenterY < 1) {
+            posTrigCenterY = 1;
+        } else if (posTrigCenterY > dimGraph.h - 1) {
+            posTrigCenterY = dimGraph.h - 1;
+        }
 
+        int32_t posTrigUpperY = posTrigCenterY - 4;
         if (posTrigUpperY < 1) {
             posTrigUpperY = 1;
         }
 
+        int32_t posTrigLowerY = posTrigCenterY + 4;
         if (posTrigLowerY > dimGraph.h - 1) {
             posTrigLowerY = dimGraph.h - 1;
         }
