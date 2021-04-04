@@ -163,11 +163,11 @@ void PROC_SetOffset(scope_channel_t channel, float volt_offset) {
     float offsetUser;
     if (channel == SCOPE_CH0) {
         float offsetCenter = PROC_CalcCenterOffset(CH0.amplification);
-        offsetUser         = offsetCenter + volt_offset;
+        offsetUser         = offsetCenter + volt_offset / attenuation[CH0.attenuation];
         CH0.offset         = offsetUser;
     } else if (channel == SCOPE_CH1) {
         float offsetCenter = PROC_CalcCenterOffset(CH1.amplification);
-        offsetUser         = offsetCenter + volt_offset;
+        offsetUser         = offsetCenter + volt_offset / attenuation[CH1.attenuation];
         CH1.offset         = offsetUser;
     }
 

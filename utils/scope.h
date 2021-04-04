@@ -24,7 +24,6 @@ typedef enum {
     ROT_TRIGGER_VOLTAGE,
     ROT_TRIGGER_VOLTAGE_FINE,
     ROT_LAST_NORM,
-    ROT_CURSOR,
-    ROT_CURSOR_FINE
+    ROT_CURSOR
 } scope_rot_t;
 #endif

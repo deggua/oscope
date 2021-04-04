@@ -10,7 +10,6 @@
 #include "utils/numeric.h"
 #include "utils/scope.h"
 
-
 #define GUI_GRAPH_NUM_WAVEFORMS 2UL
 
 #define GUI_GRAPH_WIDTH_MIN  1UL
@@ -27,8 +26,8 @@ typedef size_t gui_cursor_index_t;
 
 typedef struct {
     range_t x, y;
-
-    float samples[GUI_WAVEFORM_NUM_POINTS];
+    float   trigger;
+    float   samples[GUI_WAVEFORM_NUM_POINTS];
 } gui_waveform_t;
 
 typedef struct {

@@ -11,6 +11,7 @@
 #include "display/display.h"
 #include "gui/gui_base.h"
 #include "utils/scope.h"
+#include "utils/units.h"
 
 static void Destructor(void* this) {}
 
@@ -71,24 +72,28 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
             theme->subtle);
     }
 
-    // calculate the ideal time units to display
-    float t0 = thisGraph->_waveforms[0].x.upper;
-    if (t0 > 1.0f) {
-    } else if (t0 < 1.0f) {
-    }
-
     // draw division x-labels for time
     float time = thisGraph->_waveforms[0].x.lower;
-
-    float incXDivTime = (thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower) / GUI_GRAPH_DIVISIONS_X;
+    // calculate ideal time units
+    unit_t unitTime   = Units_CalcIdealUnits(time);
+    char*  prefixTime = Units_GetUnitPrefix(unitTime);
+    float  multTime   = Units_GetUnitMultiplier(unitTime);
+    float  incXDivTime =
+        multTime * (thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower) / GUI_GRAPH_DIVISIONS_X;
+    time *= multTime;
 
     for (int32_t ii = 0; ii <= GUI_GRAPH_DIVISIONS_X; ii++) {
-        snprintf(bufTemp, sizeof(bufTemp), "%4.0f", time);
+        snprintf(bufTemp, sizeof(bufTemp), "%4.0f %ss", time, prefixTime);
         time += incXDivTime;
 
+        int32_t heightLabel = origin.y + posGraph.y + dimGraph.h + 5 * spaceText;
+        if (ii % 2 == 0) {
+            heightLabel += FONT_HEIGHT + 2;
+        }
+
         SCR_DrawString(
-            origin.x + posGraph.x + ii * incXDivSpacing - 2 * FONT_WIDTH,
-            origin.y + posGraph.y + dimGraph.h + 5 * spaceText,
+            origin.x + posGraph.x + ii * incXDivSpacing - 4 * FONT_WIDTH,
+            heightLabel,
             bufTemp,
             scaleText,
             theme->text);
@@ -233,6 +238,66 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
             origin.x + posGraph.x + posX1,
             origin.y + posGraph.y + posY1,
             theme->accents[0]);
+    }
+
+    // draw cursors
+    if (thisGraph->_cursors != NULL) {
+        linkedlist_t* nodeCursorSel = LinkedList_HeadOf(thisGraph->_cursors);
+
+        float spanTime = thisGraph->_waveforms[0].x.upper - thisGraph->_waveforms[0].x.lower;
+
+        while (nodeCursorSel != NULL) {
+            float   normPosCursor = (((gui_cursor_t*)(nodeCursorSel->val))->pos - thisGraph->_waveforms[0].x.lower) / spanTime;
+            int32_t posCursor     = normPosCursor * dimGraph.w;
+
+            if (posCursor < 1) {
+                posCursor = 1;
+            } else if (posCursor >= dimGraph.w) {
+                posCursor = dimGraph.w - 1;
+            }
+
+            SCR_DrawLine(
+                origin.x + posGraph.x + posCursor,
+                origin.y + posGraph.y + 1,
+                origin.x + posGraph.x + posCursor,
+                origin.y + posGraph.y + dimGraph.h - 1,
+                theme->accents[3]);
+
+            nodeCursorSel = nodeCursorSel->next;
+        }
+    }
+
+    // draw triggers
+    for (int32_t ii = 0; ii < GUI_GRAPH_NUM_WAVEFORMS; ii++) {
+        float spanVertical = 0;
+        if (ii == 0) {
+            spanVertical = spanVerticalCH0;
+        } else if (ii == 1) {
+            spanVertical = spanVerticalCH1;
+        }
+
+        float   normTrigCenterY = 1 - ((thisGraph->_waveforms[ii].trigger - thisGraph->_waveforms[ii].y.lower) / spanVertical);
+        int32_t posTrigCenterY  = normTrigCenterY * dimGraph.h;
+        int32_t posTrigUpperY   = posTrigCenterY - 4;
+        int32_t posTrigLowerY   = posTrigCenterY + 4;
+
+        if (posTrigUpperY < 1) {
+            posTrigUpperY = 1;
+        }
+
+        if (posTrigLowerY > dimGraph.h - 1) {
+            posTrigLowerY = dimGraph.h - 1;
+        }
+
+        SCR_DrawTriangle(
+            origin.x + posGraph.x + dimGraph.w - 8,
+            origin.y + posGraph.y + posTrigCenterY,
+            origin.x + posGraph.x + dimGraph.w,
+            origin.y + posGraph.y + posTrigLowerY,
+            origin.x + posGraph.x + dimGraph.w,
+            origin.y + posGraph.y + posTrigUpperY,
+            true,
+            theme->accents[ii]);
     }
 
     return;

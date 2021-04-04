@@ -38,6 +38,6 @@ float Units_GetUnitMultiplier(unit_t unit) {
         return NAN;
     }
 
-    float mults[7] = {10.0e-12f, 10.0e-9f, 10.0e-6f, 10.0e-3f, 1.0f, 10.0e3f};
+    float mults[7] = {1.0e12f, 1.0e9f, 1.0e6f, 1.0e3f, 1.0f, 1.0e-3f};
     return mults[unit - 1];
 }
