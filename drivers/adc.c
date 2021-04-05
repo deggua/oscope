@@ -35,6 +35,6 @@ float DRV_ADC_ReadVoltage(scope_channel_t channel) {
         voltBits = HAL_ADC_GetValue(g_adcCH1);
     }
 
-    float voltMeasured = SCOPE_VREF * (float)voltBits / 255.0f;
+    float voltMeasured = SCOPE_VREF * (float)voltBits / 1023.0f;
     return voltMeasured;
 }

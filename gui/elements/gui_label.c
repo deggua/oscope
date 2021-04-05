@@ -77,7 +77,7 @@ gui_ret_t GUI_Label_SetText(gui_label_t* this, const char* text) {
         free(this->_text);
         this->_text = NULL;
     } else {
-        char* strNewText = malloc(strlen(text));
+        char* strNewText = malloc(strlen(text) + 1);
         if (strNewText == NULL) {
             return GUI_RET_FAILURE_NOMEM;
         }

@@ -3,6 +3,6 @@
 
 #define lengthof(x) (sizeof(x) / sizeof(x[0]))
 
-#define ADC_SAMPLES_PER_WAVEFORM 64UL
+#define ADC_SAMPLES_PER_WAVEFORM 128UL
 
 #endif

@@ -82,6 +82,10 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
     incXDivTime *= multTime;
 
     for (int32_t ii = 0; ii <= GUI_GRAPH_DIVISIONS_X; ii++) {
+        if (fabs(time) < 0.09f) {
+            time = 0.0f;
+        }
+
         snprintf(bufTemp, sizeof(bufTemp), "%6.1f %ss", time, prefixTime);
         time += incXDivTime;
 
@@ -153,8 +157,8 @@ static void Render(void* this, gui_theme_t* theme, point_t origin) {
         }
 
         float offsetY0, offsetY1;
-        offsetY0 = adjY0 - thisGraph->_waveforms[0].y.lower;
-        offsetY1 = adjY1 - thisGraph->_waveforms[0].y.lower;
+        offsetY0 = adjY0 - thisGraph->_waveforms[1].y.lower;
+        offsetY1 = adjY1 - thisGraph->_waveforms[1].y.lower;
 
         float posNormY0 = offsetY0 / spanVerticalCH1;
         float posNormY1 = offsetY1 / spanVerticalCH1;
